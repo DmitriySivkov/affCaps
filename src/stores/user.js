@@ -8,12 +8,9 @@ export const useUserStore = defineStore("user", {
 	}),
 
 	actions: {
-		async login(api_token) {
-			return api.get("user/affCaps", {
-				headers: {
-					Authorization: "Bearer " + api_token
-				}
-			})
+		login(api_token) {
+			api.defaults.headers["Authorization"] = "Bearer " + api_token
+			return api.get("/affiliateCaps/user")
 		},
 
 		logout() {

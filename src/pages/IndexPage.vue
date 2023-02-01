@@ -1,13 +1,10 @@
 <template>
-	<q-page class="flex flex-center">
-		hello
-	</q-page>
+	<IndexPageTable />
 </template>
 
 <script>
-
-
+import IndexPageTable from "src/components/IndexPageTable.vue"
 export default {
-
+	components: { IndexPageTable }
 }
 </script>

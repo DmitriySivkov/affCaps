@@ -30,7 +30,7 @@ import { Loading, LocalStorage } from "quasar"
 
 export default {
 	setup() {
-		const $router = useRouter()
+		const router = useRouter()
 		const user_store = useUserStore()
 		const key = ref(null)
 		const { notifySuccess, notifyError } = useNotification()
@@ -47,7 +47,7 @@ export default {
 					user_store.setUserData(response.data)
 					LocalStorage.set("api_token", response.data.api_token)
 					notifySuccess("Добро пожаловать")
-					$router.push({ name: "home" })
+					router.push({ name: "home" })
 				})
 				.catch((error) => {
 					let error_text = "Ошибка сервиса авторизации"
