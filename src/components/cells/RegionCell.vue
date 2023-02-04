@@ -1,13 +1,12 @@
 <template>
-	<q-td auto-width>
-		{{ props.value }}
-	</q-td>
+	{{ row.provider.region.name }}
 </template>
 
 <script>
 export default {
 	props: {
-		props: Object
-	}
+		row: Object,
+		col: Object
+	},
 }
 </script>

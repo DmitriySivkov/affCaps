@@ -1,7 +1,7 @@
 <template>
 	<q-table
 		class="sticky-header-table"
-		style="height:90vh"
+		style="height:95vh"
 		:loading="loading"
 		:rows="caps"
 		:columns="columns"
@@ -13,6 +13,7 @@
 		<template v-slot:header="props">
 			<q-tr :props="props">
 				<q-th
+					auto-width
 					v-for="col in props.cols"
 					:key="col.name"
 					:props="props"
@@ -21,12 +22,23 @@
 				</q-th>
 			</q-tr>
 		</template>
-
-		<template v-slot:body-cell="props">
-			<component
-				:is="setCellComponent(props)"
+		<template v-slot:body="props">
+			<q-tr
 				:props="props"
-			></component>
+			>
+				<q-td
+					auto-width
+					v-for="col in props.cols"
+					:key="col.name"
+					:props="props"
+				>
+					<component
+						:is="getCell(col.name)"
+						:row="props.row"
+						:col="col"
+					></component>
+				</q-td>
+			</q-tr>
 		</template>
 	</q-table>
 </template>
@@ -34,14 +46,18 @@
 <script>
 import { ref } from "vue"
 import { api } from "src/boot/axios"
-import StandardCell from "src/components/StandardCell.vue"
-import ScheduleCell from "src/components/ScheduleCell.vue"
-import PayoutsCell from "src/components/PayoutsCell.vue"
-import ManagerCell from "src/components/ManagerCell.vue"
-import BrokerCell from "src/components/BrokerCell.vue"
+import StandardCell from "src/components/cells/StandardCell.vue"
+import ScheduleCell from "src/components/cells/ScheduleCell.vue"
+import PayoutsCell from "src/components/cells/PayoutsCell.vue"
+import ManagerCell from "src/components/cells/ManagerCell.vue"
+import BrokerCell from "src/components/cells/BrokerCell.vue"
+import RegionCell from "src/components/cells/RegionCell.vue"
+import CountryCell from "src/components/cells/CountryCell.vue"
 export default {
 	components: {
 		StandardCell,
+		RegionCell,
+		CountryCell,
 		ScheduleCell,
 		PayoutsCell,
 		ManagerCell,
@@ -50,15 +66,15 @@ export default {
 	setup() {
 		const caps = ref([])
 		const columns = [
-			{ name: "id", label: "#ID", field: row => row.id, align: "left", sortable: true },
-			{ name: "region", label: "Region", field: row => row.provider.region.name, align: "left", sortable: true },
-			{ name: "country", label: "Country", field: row => row.country.iso + " - " + row.country.en_name, align: "left", sortable: true },
-			{ name: "broker", label: "Broker", field: "broker", align: "left" },
-			{ name: "payouts", label: "Payouts", field: "payouts", align: "left" },
-			{ name: "caps", label: "CAPs", field: row => row.amount, align: "left" },
-			{ name: "current_count", label: "Current Count", field: row => row.current_cap_count, align: "left" },
-			{ name: "working_hours", label: "Working Hours (today)", field: "working_hours", align: "left" },
-			{ name: "manager", label: "Manager", field: row => row.amount, align: "left" },
+			{ name: "id", label: "#ID", align: "left", field: "id", sortable: true },
+			{ name: "region", label: "Region", align: "left" },
+			{ name: "country", label: "Country", align: "left" },
+			{ name: "broker", label: "Broker", align: "left" },
+			{ name: "payouts", label: "Payouts", align: "left" },
+			{ name: "amount", label: "CAPs", align: "left" },
+			{ name: "current_cap_count", label: "Current Count", align: "left" },
+			{ name: "working_hours", label: "Working Hours (today)", align: "left" },
+			{ name: "manager", label: "Manager", align: "left" },
 		]
 
 		const loading = ref(false)
@@ -78,7 +94,7 @@ export default {
 				})
 				if (response.data.caps.length > 0) {
 					caps.value = [...caps.value, ...response.data.caps]
-					offset += 20
+					offset += 40
 					await fetchData()
 				}
 			}
@@ -90,29 +106,31 @@ export default {
 
 		loadData()
 
-		const setCellComponent = (props) => {
-			if (props.col.name === "working_hours") {
+		const getCell = (col) => {
+			switch (col) {
+			case "region":
+				return "RegionCell"
+			case "country":
+				return "CountryCell"
+			case "working_hours":
 				return "ScheduleCell"
-			}
-			if (props.col.name === "payouts") {
+			case "payouts":
 				return "PayoutsCell"
-			}
-			if (props.col.name === "manager") {
+			case "manager":
 				return "ManagerCell"
-			}
-			if (props.col.name === "broker") {
+			case "broker":
 				return "BrokerCell"
+			default:
+				return "StandardCell"
 			}
-			return "StandardCell"
 		}
-
 
 		return {
 			loading,
 			caps,
 			pagination,
 			columns,
-			setCellComponent
+			getCell
 		}
 	}
 }
