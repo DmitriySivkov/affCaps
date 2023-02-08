@@ -1,10 +1,10 @@
 <template>
-	<IndexPageTable />
+	<SalesTable />
 </template>
 
 <script>
-import IndexPageTable from "src/components/IndexPageTable.vue"
+import SalesTable from "src/components/SalesTable.vue"
 export default {
-	components: { IndexPageTable }
+	components: { SalesTable }
 }
 </script>

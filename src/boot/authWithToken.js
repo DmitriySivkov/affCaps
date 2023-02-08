@@ -15,7 +15,6 @@ export default async({ store, router }) => {
 			.then((response) => {
 				user_store.setUserData(response.data)
 				notifySuccess("Добро пожаловать")
-				router.push({ name: "home" })
 			})
 			.catch((error) => {
 				let error_text = "Ошибка сервиса авторизации"
@@ -25,7 +24,6 @@ export default async({ store, router }) => {
 
 				notifyError(error_text)
 			})
-	} else {
-		router.push({ name: "auth" })
+		Loading.hide()
 	}
 }

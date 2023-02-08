@@ -12,20 +12,11 @@
 			</div>
 			<div class="col-4">
 				<q-btn
-					v-if="router.currentRoute.value.name === 'home'"
 					flat
 					round
 					icon="login"
 					class="float-right"
-					:to="{name:'auth'}"
-				/>
-				<q-btn
-					v-if="router.currentRoute.value.name === 'auth'"
-					flat
-					round
-					icon="home"
-					class="float-right"
-					:to="{name:'home'}"
+					@click="toggleAuthDrawer"
 				/>
 			</div>
 		</q-toolbar>
@@ -33,25 +24,61 @@
 
 	<q-drawer
 		v-model="leftDrawerOpen"
-		show-if-above
 		bordered
 	>
+	</q-drawer>
+	<q-drawer
+		:width="$q.screen.width"
+		overlay
+		side="right"
+		v-model="authDrawerOpen"
+		bordered
+	>
+		<UserAuth />
 	</q-drawer>
 </template>
 
 <script>
-import { ref } from "vue"
+import { ref, watch } from "vue"
 import { useRouter } from "vue-router"
+import { useUser } from "src/composables/user"
+import UserAuth from "src/components/auth/UserAuth.vue"
 export default {
+	components: {
+		UserAuth
+	},
 	setup() {
+		const { is_logged } = useUser()
 		const router = useRouter()
-		const leftDrawerOpen = ref(false)
-		const toggleLeftDrawer = () =>
+
+		const leftDrawerOpen = ref(is_logged.value)
+		const authDrawerOpen = ref(!is_logged.value)
+
+		const toggleLeftDrawer = () => {
+			if (authDrawerOpen.value === true)
+				return
+
 			leftDrawerOpen.value = !leftDrawerOpen.value
+		}
+
+		const toggleAuthDrawer = () => {
+			if (!is_logged.value)
+				return
+
+			authDrawerOpen.value = !authDrawerOpen.value
+
+			leftDrawerOpen.value = authDrawerOpen.value !== true
+		}
+
+		watch(() => is_logged.value, () => {
+			toggleAuthDrawer()
+		})
 
 		return {
 			leftDrawerOpen,
+			authDrawerOpen,
 			toggleLeftDrawer,
+			toggleAuthDrawer,
 			router
 		}
 	}

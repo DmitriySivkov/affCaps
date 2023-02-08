@@ -9,11 +9,6 @@ const routes = [
 				path: "",
 				component: () => import("src/pages/IndexPage.vue")
 			},
-			{
-				name: "auth",
-				path: "auth",
-				component: () => import("src/pages/AuthPage.vue")
-			}
 		]
 	},
 

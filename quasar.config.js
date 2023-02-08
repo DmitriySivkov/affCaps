@@ -31,7 +31,6 @@ module.exports = configure(function (ctx) {
 		boot: [
 			"authWithToken", // first on boot - show loader
 			"axios",
-			"routes", // last on boot - hide loader
 		],
 
 		// https://v2.quasar.dev/quasar-cli-vite/quasar-config-js#css

@@ -1,7 +1,7 @@
 <template>
 	<q-table
 		class="sticky-header-table"
-		style="height:95vh"
+		style="height:89vh"
 		:loading="loading"
 		:rows="caps"
 		:columns="columns"
@@ -47,13 +47,13 @@
 <script>
 import { ref } from "vue"
 import { api } from "src/boot/axios"
-import StandardCell from "src/components/cells/StandardCell.vue"
-import ScheduleCell from "src/components/cells/ScheduleCell.vue"
-import PayoutsCell from "src/components/cells/PayoutsCell.vue"
-import ManagerCell from "src/components/cells/ManagerCell.vue"
-import BrokerCell from "src/components/cells/BrokerCell.vue"
-import RegionCell from "src/components/cells/RegionCell.vue"
-import CountryCell from "src/components/cells/CountryCell.vue"
+import StandardCell from "src/components/salesTableCells/StandardCell.vue"
+import ScheduleCell from "src/components/salesTableCells/ScheduleCell.vue"
+import PayoutsCell from "src/components/salesTableCells/PayoutsCell.vue"
+import ManagerCell from "src/components/salesTableCells/ManagerCell.vue"
+import BrokerCell from "src/components/salesTableCells/BrokerCell.vue"
+import RegionCell from "src/components/salesTableCells/RegionCell.vue"
+import CountryCell from "src/components/salesTableCells/CountryCell.vue"
 export default {
 	components: {
 		StandardCell,
@@ -95,7 +95,7 @@ export default {
 				})
 				if (response.data.caps.length > 0) {
 					caps.value = [...caps.value, ...response.data.caps]
-					offset += 40
+					offset += 80
 					await fetchData()
 				}
 			}
