@@ -27,12 +27,15 @@ import { useUserStore } from "src/stores/user"
 import { ref } from "vue"
 import { useNotification } from "src/composables/notification"
 import { Loading, LocalStorage } from "quasar"
-
+import { useCommonStore } from "src/stores/common"
+import { useUser } from "src/composables/user"
 export default {
 	setup() {
 		const router = useRouter()
+		const common_store = useCommonStore()
 		const user_store = useUserStore()
 		const key = ref(null)
+		const { hasRole } = useUser()
 		const { notifySuccess, notifyError } = useNotification()
 
 		const onSubmit = async () => {
@@ -45,6 +48,17 @@ export default {
 			await user_store.login(key.value)
 				.then((response) => {
 					user_store.setUserData(response.data)
+
+					common_store.setSelectedTable("sales")
+
+					if (hasRole(4)) {
+						common_store.setSelectedTable("sales")
+					}
+
+					if (hasRole(5)) {
+						common_store.setSelectedTable("affiliate")
+					}
+
 					LocalStorage.set("api_token", response.data.api_token)
 					notifySuccess("Добро пожаловать")
 					router.push({ name: "home" })

@@ -9,7 +9,7 @@ export const useNotification = () => {
 			multiLine: true,
 			icon: "cloud_done",
 			message,
-			position: "top-left"
+			position: "top-right"
 		})
 	}
 
@@ -20,7 +20,7 @@ export const useNotification = () => {
 			multiline: true,
 			icon: "warning",
 			message,
-			position: "top-left",
+			position: "top-right",
 		})
 	}
 

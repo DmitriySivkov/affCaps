@@ -51,12 +51,14 @@ import StandardCell from "src/components/affiliateTableCells/StandardCell.vue"
 import RegionCell from "src/components/affiliateTableCells/RegionCell.vue"
 import CountryCell from "src/components/affiliateTableCells/CountryCell.vue"
 import AffiliateCell from "src/components/affiliateTableCells/AffiliateCell.vue"
+import CurrentCountCell from "src/components/affiliateTableCells/CurrentCountCell.vue"
 export default {
 	components: {
 		StandardCell,
 		// RegionCell,
 		CountryCell,
 		AffiliateCell,
+		CurrentCountCell
 	},
 	setup() {
 		const deals = ref([])
@@ -125,6 +127,8 @@ export default {
 				return "CountryCell"
 			case "affiliate":
 				return "AffiliateCell"
+			case "total_count":
+				return "CurrentCountCell"
 			default:
 				return "StandardCell"
 			}

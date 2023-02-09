@@ -30,7 +30,7 @@
 </template>
 
 <script>
-import { ref, computed } from "vue"
+import { computed } from "vue"
 import { useUser } from "src/composables/user"
 import { useCommonStore } from "src/stores/common"
 export default {
