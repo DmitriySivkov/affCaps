@@ -32,6 +32,7 @@
 <script>
 import { ref, computed } from "vue"
 import { useUser } from "src/composables/user"
+import { useCommonStore } from "src/stores/common"
 export default {
 	setup() {
 		const menu = [
@@ -69,14 +70,17 @@ export default {
 			},
 		]
 
+		const common_store = useCommonStore()
+
 		const { hasRole } = useUser()
 
 		const can_see_sales = computed(() => hasRole(1) || hasRole(4) || hasRole(7))
 		const can_see_affiliates = computed(() => hasRole(1) || hasRole(5) || hasRole(7))
 
-		const selected_table = ref("sales")
+		const selected_table = computed(() => common_store.selected_table)
+
 		const toggleTable = (table_name) => {
-			selected_table.value = table_name
+			common_store.setSelectedTable(table_name)
 		}
 
 		const thumb_style = {

@@ -37,7 +37,7 @@
 						:row="props.row"
 						:col="col"
 						:key="props.row.id"
-					></component>
+					/>
 				</q-td>
 			</q-tr>
 		</template>

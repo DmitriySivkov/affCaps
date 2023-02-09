@@ -1,9 +1,9 @@
 <template>
 	<q-table
 		class="sticky-header-table"
-		style="height:89vh"
+		style="height:90vh"
 		:loading="loading"
-		:rows="caps"
+		:rows="deals"
 		:columns="columns"
 		row-key="id"
 		:rows-per-page-options="[0]"
@@ -37,7 +37,7 @@
 						:row="props.row"
 						:col="col"
 						:key="props.row.id"
-					></component>
+					/>
 				</q-td>
 			</q-tr>
 		</template>
@@ -47,35 +47,33 @@
 <script>
 import { ref } from "vue"
 import { api } from "src/boot/axios"
-import StandardCell from "src/components/salesTableCells/StandardCell.vue"
-import ScheduleCell from "src/components/salesTableCells/ScheduleCell.vue"
-import PayoutsCell from "src/components/salesTableCells/PayoutsCell.vue"
-import ManagerCell from "src/components/salesTableCells/ManagerCell.vue"
-import BrokerCell from "src/components/salesTableCells/BrokerCell.vue"
-import RegionCell from "src/components/salesTableCells/RegionCell.vue"
-import CountryCell from "src/components/salesTableCells/CountryCell.vue"
+import StandardCell from "src/components/affiliateTableCells/StandardCell.vue"
+import RegionCell from "src/components/affiliateTableCells/RegionCell.vue"
+import CountryCell from "src/components/affiliateTableCells/CountryCell.vue"
+import AffiliateCell from "src/components/affiliateTableCells/AffiliateCell.vue"
 export default {
 	components: {
 		StandardCell,
-		RegionCell,
+		// RegionCell,
 		CountryCell,
-		ScheduleCell,
-		PayoutsCell,
-		ManagerCell,
-		BrokerCell
+		AffiliateCell,
 	},
 	setup() {
-		const caps = ref([])
+		const deals = ref([])
 		const columns = [
 			{ name: "id", label: "#ID", align: "left", field: "id", sortable: true },
 			{ name: "region", label: "Region", align: "left" },
 			{ name: "country", label: "Country", align: "left" },
-			{ name: "broker", label: "Broker", align: "left" },
-			{ name: "payouts", label: "Payouts", align: "left" },
+			{ name: "affiliate", label: "Affiliate", align: "left" },
+			{ name: "deduction", label: "Payouts", align: "left" },
 			{ name: "amount", label: "CAPs", align: "left" },
-			{ name: "current_cap_count", label: "Current Count", align: "left" },
-			{ name: "working_hours", label: "Working Hours (today)", align: "left" },
-			{ name: "manager", label: "Manager", align: "left" },
+			{ name: "total_count", label: "Current Count", align: "left" },
+			{ name: "status_sale", label: "Status Sale", align: "left" },
+			{ name: "percent", label: "%*", align:"left" },
+			{ name: "source", label: "Source*", align:"left" },
+			{ name: "funnel", label: "Funnel*", align:"left" },
+			{ name: "experience", label: "Experience*", align:"left" },
+			{ name: "comment", label: "Comment*", align:"left" },
 		]
 
 		const loading = ref(false)
@@ -86,20 +84,32 @@ export default {
 			let offset = 0
 			loading.value = true
 
+			let available_countries = []
+
+			const getAvailableCountries = async() => {
+				const response = await api.get("/affiliateCaps/countries")
+				available_countries = response.data
+			}
+
 			const fetchData = async() => {
 				const response = await api.get("/affiliateCaps", {
 					params: {
-						refreshType: "advManager",
+						refreshType: "affManager",
 						offset,
+						availableCountries: JSON.stringify(available_countries),
+						fetchAffiliatesData: true
 					}
 				})
 				if (response.data.caps.length > 0) {
-					caps.value = [...caps.value, ...response.data.caps]
-					offset += 80
+					deals.value = [...deals.value, ...response.data.caps]
+					offset += 40
 					await fetchData()
+				} else {
+					offset = 0
 				}
 			}
 
+			await getAvailableCountries()
 			await fetchData()
 
 			loading.value = false
@@ -109,18 +119,12 @@ export default {
 
 		const getCell = (col) => {
 			switch (col) {
-			case "region":
-				return "RegionCell"
+			// case "region":
+			// 	return "RegionCell"
 			case "country":
 				return "CountryCell"
-			case "working_hours":
-				return "ScheduleCell"
-			case "payouts":
-				return "PayoutsCell"
-			case "manager":
-				return "ManagerCell"
-			case "broker":
-				return "BrokerCell"
+			case "affiliate":
+				return "AffiliateCell"
 			default:
 				return "StandardCell"
 			}
@@ -128,7 +132,7 @@ export default {
 
 		return {
 			loading,
-			caps,
+			deals,
 			pagination,
 			columns,
 			getCell
