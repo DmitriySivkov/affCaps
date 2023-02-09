@@ -26,6 +26,8 @@
 		v-model="leftDrawerOpen"
 		bordered
 	>
+		<TableList />
+		<q-separator />
 	</q-drawer>
 	<q-drawer
 		:width="$q.screen.width"
@@ -43,9 +45,11 @@ import { ref, watch } from "vue"
 import { useRouter } from "vue-router"
 import { useUser } from "src/composables/user"
 import UserAuth from "src/components/auth/UserAuth.vue"
+import TableList from "src/components/leftDrawer/TableList.vue"
 export default {
 	components: {
-		UserAuth
+		UserAuth,
+		TableList
 	},
 	setup() {
 		const { is_logged } = useUser()

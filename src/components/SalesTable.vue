@@ -1,7 +1,7 @@
 <template>
 	<q-table
 		class="sticky-header-table"
-		style="height:89vh"
+		style="height:90vh"
 		:loading="loading"
 		:rows="caps"
 		:columns="columns"
