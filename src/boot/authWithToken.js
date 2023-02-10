@@ -25,7 +25,7 @@ export default async({ store, router }) => {
 				}
 
 				if (hasRole(5)) {
-					common_store.setSelectedTable("affiliate")
+					common_store.setSelectedTable("deals")
 				}
 
 				notifySuccess("Добро пожаловать")

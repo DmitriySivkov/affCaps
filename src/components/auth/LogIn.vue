@@ -56,7 +56,7 @@ export default {
 					}
 
 					if (hasRole(5)) {
-						common_store.setSelectedTable("affiliate")
+						common_store.setSelectedTable("deals")
 					}
 
 					LocalStorage.set("api_token", response.data.api_token)

@@ -4,16 +4,14 @@
 		<q-page-container v-if="is_logged">
 			<router-view />
 		</q-page-container>
-		<MainFooter />
 	</q-layout>
 </template>
 
 <script>
 import MainHeader from "src/layouts/MainHeader.vue"
-import MainFooter from "src/layouts/MainFooter.vue"
 import { useUser } from "src/composables/user"
 export default {
-	components: { MainHeader, MainFooter },
+	components: { MainHeader },
 	setup() {
 		const { is_logged } = useUser()
 

@@ -1,13 +1,16 @@
 <template>
+	<AdminDealsTableFilter v-model="query"/>
 	<q-table
 		class="sticky-header-table"
-		style="height:90vh"
+		style="height:84vh"
 		:loading="loading"
 		:rows="deals"
 		:columns="columns"
 		row-key="id"
 		:rows-per-page-options="[0]"
 		:pagination="pagination"
+		:filter="query"
+		:filter-method="queryMethod"
 		virtual-scroll
 	>
 		<template v-slot:header="props">
@@ -45,20 +48,24 @@
 </template>
 
 <script>
-import { ref } from "vue"
+import { ref, computed } from "vue"
 import { api } from "src/boot/axios"
-import StandardCell from "src/components/affiliateTableCells/StandardCell.vue"
-import RegionCell from "src/components/affiliateTableCells/RegionCell.vue"
-import CountryCell from "src/components/affiliateTableCells/CountryCell.vue"
-import AffiliateCell from "src/components/affiliateTableCells/AffiliateCell.vue"
-import CurrentCountCell from "src/components/affiliateTableCells/CurrentCountCell.vue"
+import AdminDealsTableFilter from "components/deals/filters/AdminDealsTableFilter.vue"
+import StandardCell from "src/components/deals/cells/StandardCell.vue"
+import RegionCell from "src/components/deals/cells/RegionCell.vue"
+import CountryCell from "src/components/deals/cells/CountryCell.vue"
+import AffiliateCell from "src/components/deals/cells/AffiliateCell.vue"
+import CurrentCountCell from "src/components/deals/cells/CurrentCountCell.vue"
+import SplitCell from "src/components/deals/cells/SplitCell.vue"
 export default {
 	components: {
 		StandardCell,
 		// RegionCell,
 		CountryCell,
 		AffiliateCell,
-		CurrentCountCell
+		CurrentCountCell,
+		SplitCell,
+		AdminDealsTableFilter
 	},
 	setup() {
 		const deals = ref([])
@@ -70,6 +77,7 @@ export default {
 			{ name: "deduction", label: "Payouts", align: "left" },
 			{ name: "amount", label: "CAPs", align: "left" },
 			{ name: "total_count", label: "Current Count", align: "left" },
+			{ name: "split", label: "Split", align: "left" },
 			{ name: "status_sale", label: "Status Sale", align: "left" },
 			{ name: "percent", label: "%*", align:"left" },
 			{ name: "source", label: "Source*", align:"left" },
@@ -77,6 +85,15 @@ export default {
 			{ name: "experience", label: "Experience*", align:"left" },
 			{ name: "comment", label: "Comment*", align:"left" },
 		]
+
+		const query = ref({
+			id: "",
+			region: "",
+			country: "",
+			affiliate: "",
+			split: "",
+			status_sale: ""
+		})
 
 		const loading = ref(false)
 
@@ -96,15 +113,14 @@ export default {
 			const fetchData = async() => {
 				const response = await api.get("/affiliateCaps", {
 					params: {
-						refreshType: "affManager",
 						offset,
 						availableCountries: JSON.stringify(available_countries),
-						fetchAffiliatesData: true
+						fetch: "deals"
 					}
 				})
-				if (response.data.caps.length > 0) {
-					deals.value = [...deals.value, ...response.data.caps]
-					offset += 40
+				if (response.data.length > 0) {
+					deals.value = [...deals.value, ...response.data]
+					offset += 80
 					await fetchData()
 				} else {
 					offset = 0
@@ -129,37 +145,27 @@ export default {
 				return "AffiliateCell"
 			case "total_count":
 				return "CurrentCountCell"
+			case "split":
+				return "SplitCell"
 			default:
 				return "StandardCell"
 			}
 		}
+
+		const queryMethod = (rows, terms, cols, getCellValue) => {
+			return rows
+		}
+
 
 		return {
 			loading,
 			deals,
 			pagination,
 			columns,
-			getCell
+			getCell,
+			query,
+			queryMethod
 		}
 	}
 }
 </script>
-
-<style lang="sass">
-.sticky-header-table
-	height: 310px
-
-	.q-table__top,
-	.q-table__bottom,
-	thead tr:first-child th
-		background-color: #c1f4cd
-
-	thead tr th
-		position: sticky
-		z-index: 1
-	thead tr:first-child th
-		top: 0
-
-	&.q-table--loading thead tr:last-child th
-		top: 48px
-</style>

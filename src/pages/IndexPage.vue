@@ -5,14 +5,14 @@
 </template>
 
 <script>
-import SalesTable from "src/components/SalesTable.vue"
-import AffiliatesTable from "src/components/AffiliatesTable.vue"
+import SalesTable from "src/components/sales/SalesTable.vue"
+import DealsTable from "src/components/deals/DealsTable.vue"
 import { useCommonStore } from "src/stores/common"
 import { computed } from "vue"
 export default {
 	components: {
 		SalesTable,
-		AffiliatesTable
+		DealsTable
 	},
 	setup() {
 		const common_store = useCommonStore()
@@ -22,8 +22,8 @@ export default {
 			switch (selected_table.value) {
 			case "sales":
 				return "SalesTable"
-			case "affiliate":
-				return "AffiliatesTable"
+			case "deals":
+				return "DealsTable"
 			}
 		}
 
