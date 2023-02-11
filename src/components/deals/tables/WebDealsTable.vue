@@ -1,7 +1,6 @@
 <template>
 	<q-table
 		class="sticky-header-table"
-		style="height:94vh"
 		:loading="loading"
 		:rows="deals"
 		:columns="columns"

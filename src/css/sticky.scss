@@ -1,5 +1,5 @@
 .sticky-header-table {
-	height: 310px;
+	height: calc(100vh - 50px);
 
 	.q-table__top,
 	.q-table__bottom,

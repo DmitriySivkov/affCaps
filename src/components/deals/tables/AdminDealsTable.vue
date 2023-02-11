@@ -1,8 +1,11 @@
 <template>
-	<AdminDealsTableFilter v-model="query"/>
+	<AdminDealsTableFilter
+		ref="filter_component"
+		v-model="query"
+	/>
 	<q-table
+		:style="{height: table_height + 'px'}"
 		class="sticky-header-table"
-		style="height:84vh"
 		:loading="loading"
 		:rows="deals"
 		:columns="columns"
@@ -10,7 +13,7 @@
 		:rows-per-page-options="[0]"
 		:pagination="pagination"
 		:filter="query"
-		:filter-method="queryMethod"
+		:filter-method="queryFilter"
 		virtual-scroll
 	>
 		<template v-slot:header="props">
@@ -50,6 +53,8 @@
 <script>
 import { ref, computed } from "vue"
 import { api } from "src/boot/axios"
+import _ from "lodash"
+import { useQuasar } from "quasar"
 import AdminDealsTableFilter from "components/deals/filters/AdminDealsTableFilter.vue"
 import StandardCell from "src/components/deals/cells/StandardCell.vue"
 import RegionCell from "src/components/deals/cells/RegionCell.vue"
@@ -68,6 +73,7 @@ export default {
 		AdminDealsTableFilter
 	},
 	setup() {
+		const $q = useQuasar()
 		const deals = ref([])
 		const columns = [
 			{ name: "id", label: "#ID", align: "left", field: "id", sortable: true },
@@ -86,12 +92,14 @@ export default {
 			{ name: "comment", label: "Comment*", align:"left" },
 		]
 
+		const filter_component = ref(null)
+
 		const query = ref({
 			id: "",
 			region: "",
 			country: "",
 			affiliate: "",
-			split: "",
+			split: [],
 			status_sale: ""
 		})
 
@@ -118,6 +126,7 @@ export default {
 						fetch: "deals"
 					}
 				})
+
 				if (response.data.length > 0) {
 					deals.value = [...deals.value, ...response.data]
 					offset += 80
@@ -152,10 +161,18 @@ export default {
 			}
 		}
 
-		const queryMethod = (rows, terms, cols, getCellValue) => {
-			return rows
+		const queryFilter = (rows, terms, cols, getCellValue) => {
+			return _.filter(rows, (row) => {
+				return (!!terms.id ? row.id.toString().includes(terms.id) : true) &&
+					(!!terms.region ? row.region.toLowerCase().includes(terms.region.toLowerCase()) : true) &&
+					(!!terms.country ? (row.country_iso + row.country_name).toLowerCase().includes(terms.country.toLowerCase()) : true) &&
+					(!!terms.affiliate ? row.affiliate_info.toLowerCase().includes(terms.affiliate.toLowerCase()) : true) &&
+					(terms.split.length > 0 ? (row.split ? terms.split.map((t) => t.text).includes(row.split.name) : false) : true) &&
+					(!!terms.status_sale ? row.status_sale === terms.status_sale : true)
+			})
 		}
 
+		const table_height = computed(() => $q.screen.height - (filter_component.value ? filter_component.value.$el.clientHeight : 0) - 42)
 
 		return {
 			loading,
@@ -164,7 +181,9 @@ export default {
 			columns,
 			getCell,
 			query,
-			queryMethod
+			queryFilter,
+			filter_component,
+			table_height
 		}
 	}
 }
