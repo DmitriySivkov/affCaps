@@ -1,39 +1,8 @@
 <template>
 	<q-card class="q-pa-sm row q-col-gutter-sm">
-		<div class="col-md-2">
-			<q-input
-				label="#ID"
-				filled
-				:model-value="modelValue.id"
-				@update:model-value="queryChanged($event, 'id')"
-			/>
-		</div>
-		<div class="col-md-2">
-			<q-input
-				label="Region"
-				filled
-				:model-value="modelValue.region"
-				@update:model-value="queryChanged($event, 'region')"
-			/>
-		</div>
-		<div class="col-md-2">
-			<q-input
-				label="Country"
-				filled
-				:model-value="modelValue.country"
-				@update:model-value="queryChanged($event, 'country')"
-			/>
-		</div>
-		<div class="col-md-2">
-			<q-input
-				label="Affiliate"
-				filled
-				:model-value="modelValue.affiliate"
-				@update:model-value="queryChanged($event, 'affiliate')"
-			/>
-		</div>
-		<div class="col-md-2">
+		<div class="col-md-12">
 			<q-select
+				clearable
 				filled
 				multiple
 				label="Split"
@@ -44,7 +13,7 @@
 				input-debounce="1000"
 				use-input
 				use-chips
-				:model-value="modelValue.split"
+				:model-value="deals_store.filter.split"
 				@update:model-value="queryChanged($event, 'split')"
 			>
 				<template v-slot:selected-item="{opt, index, removeAtIndex}">
@@ -60,12 +29,44 @@
 			</q-select>
 		</div>
 		<div class="col-md-2">
+			<q-input
+				label="#ID"
+				filled
+				:model-value="deals_store.filter.id"
+				@update:model-value="queryChanged($event, 'id')"
+			/>
+		</div>
+		<div class="col-md-2">
+			<q-input
+				label="Region"
+				filled
+				:model-value="deals_store.filter.region"
+				@update:model-value="queryChanged($event, 'region')"
+			/>
+		</div>
+		<div class="col-md-2">
+			<q-input
+				label="Country"
+				filled
+				:model-value="deals_store.filter.country"
+				@update:model-value="queryChanged($event, 'country')"
+			/>
+		</div>
+		<div class="col-md-2">
+			<q-input
+				label="Affiliate"
+				filled
+				:model-value="deals_store.filter.affiliate"
+				@update:model-value="queryChanged($event, 'affiliate')"
+			/>
+		</div>
+		<div class="col-md-2">
 			<q-select
 				clearable
 				filled
 				label="Status"
 				:options="['Wait for setup', 'Wait for traffic', 'Active', 'Decline', 'Need resetup asap']"
-				:model-value="modelValue.status_sale"
+				:model-value="deals_store.filter.status_sale"
 				@update:model-value="queryChanged($event, 'status_sale')"
 			/>
 		</div>
@@ -75,15 +76,13 @@
 <script>
 import { api } from "src/boot/axios"
 import { ref } from "vue"
+import { useDealsStore } from "src/stores/deals"
 export default {
-	props: {
-		modelValue: Object,
-	},
-	setup(props, { emit }) {
+	setup() {
+		const	deals_store = useDealsStore()
+
 		const queryChanged = (value, field) => {
-			let result = props.modelValue
-			result[field] = value
-			emit("update:modelValue", result)
+			deals_store.setFilterField({value, field})
 		}
 
 		const split_options = ref([])
@@ -95,12 +94,6 @@ export default {
 			const response = await api.get("/affiliateCaps/splits", {
 				params: {
 					q: query,
-					// providers: [
-					// 	this.providerId
-					// ],
-					// countries: [
-					// 	this.countryId
-					// ]
 				}
 			})
 
@@ -113,7 +106,8 @@ export default {
 		return {
 			queryChanged,
 			searchSplit,
-			split_options
+			split_options,
+			deals_store
 		}
 	}
 }

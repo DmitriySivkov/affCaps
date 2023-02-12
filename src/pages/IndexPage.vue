@@ -1,6 +1,6 @@
 <template>
 	<KeepAlive>
-		<component :is="getTableComponent()"/>
+		<component :is="getTableComponent()" />
 	</KeepAlive>
 </template>
 

@@ -12,13 +12,14 @@
 		<template v-slot:header="props">
 			<q-tr :props="props">
 				<q-th
-					auto-width
 					v-for="col in props.cols"
 					:key="col.name"
+					auto-width
 					:props="props"
 				>
 					{{ col.label }}
 				</q-th>
+				<q-th auto-width />
 			</q-tr>
 		</template>
 		<template v-slot:body="props">
@@ -38,6 +39,20 @@
 						:key="props.row.id"
 					/>
 				</q-td>
+				<q-td>
+					<q-list dense>
+						<q-item
+							clickable
+							class="bg-primary text-white"
+							@click="showDeals(props.row)"
+						>
+							<q-item-section avatar>
+								<q-avatar icon="view_list"/>
+							</q-item-section>
+							<q-item-section>Deals</q-item-section>
+						</q-item>
+					</q-list>
+				</q-td>
 			</q-tr>
 		</template>
 	</q-table>
@@ -53,6 +68,9 @@ import ManagerCell from "src/components/sales/cells/ManagerCell.vue"
 import BrokerCell from "src/components/sales/cells/BrokerCell.vue"
 import RegionCell from "src/components/sales/cells/RegionCell.vue"
 import CountryCell from "src/components/sales/cells/CountryCell.vue"
+import { useCommonStore } from "src/stores/common"
+import { useDealsStore } from "src/stores/deals"
+import { Loading } from "quasar"
 export default {
 	components: {
 		StandardCell,
@@ -64,6 +82,9 @@ export default {
 		BrokerCell
 	},
 	setup() {
+		const deals_store = useDealsStore()
+		const common_store = useCommonStore()
+
 		const caps = ref([])
 		const columns = [
 			{ name: "id", label: "#ID", align: "left", field: "id", sortable: true },
@@ -74,7 +95,7 @@ export default {
 			{ name: "amount", label: "CAPs", align: "left" },
 			{ name: "current_cap_count", label: "Current Count", align: "left" },
 			{ name: "working_hours", label: "Working Hours (today)", align: "left" },
-			{ name: "manager", label: "Manager", align: "left" },
+			{ name: "manager", label: "Manager", align: "left" }
 		]
 
 		const loading = ref(false)
@@ -125,12 +146,30 @@ export default {
 			}
 		}
 
+		const showDeals = async (row) => {
+			Loading.show()
+			const response = await api.get("/affiliateCaps/splits", {
+				params: {
+					providers: [row.provider_id],
+					countries: [row.country_id],
+					limit: 999
+				}
+			})
+			deals_store.setFilter({
+				country: row.country.iso + " - " + row.country.en_name,
+				split: response.data.items
+			})
+			common_store.setSelectedTable("deals")
+			Loading.hide()
+		}
+
 		return {
 			loading,
 			caps,
 			pagination,
 			columns,
-			getCell
+			getCell,
+			showDeals
 		}
 	}
 }

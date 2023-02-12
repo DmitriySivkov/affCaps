@@ -1,8 +1,5 @@
 <template>
-	<AdminDealsTableFilter
-		ref="filter_component"
-		v-model="query"
-	/>
+	<AdminDealsTableFilter ref="filter_component" />
 	<q-table
 		:style="{height: table_height + 'px'}"
 		class="sticky-header-table"
@@ -62,6 +59,7 @@ import CountryCell from "src/components/deals/cells/CountryCell.vue"
 import AffiliateCell from "src/components/deals/cells/AffiliateCell.vue"
 import CurrentCountCell from "src/components/deals/cells/CurrentCountCell.vue"
 import SplitCell from "src/components/deals/cells/SplitCell.vue"
+import { useDealsStore } from "src/stores/deals"
 export default {
 	components: {
 		StandardCell,
@@ -74,34 +72,27 @@ export default {
 	},
 	setup() {
 		const $q = useQuasar()
+		const deals_store = useDealsStore()
+
 		const deals = ref([])
 		const columns = [
 			{ name: "id", label: "#ID", align: "left", field: "id", sortable: true },
-			{ name: "region", label: "Region", align: "left" },
-			{ name: "country", label: "Country", align: "left" },
-			{ name: "affiliate", label: "Affiliate", align: "left" },
-			{ name: "deduction", label: "Payouts", align: "left" },
-			{ name: "amount", label: "CAPs", align: "left" },
-			{ name: "total_count", label: "Current Count", align: "left" },
-			{ name: "split", label: "Split", align: "left" },
-			{ name: "status_sale", label: "Status Sale", align: "left" },
-			{ name: "percent", label: "%*", align:"left" },
-			{ name: "source", label: "Source*", align:"left" },
-			{ name: "funnel", label: "Funnel*", align:"left" },
-			{ name: "experience", label: "Experience*", align:"left" },
-			{ name: "comment", label: "Comment*", align:"left" },
+			{ name: "region", label: "Region", field: "region", align: "left" },
+			{ name: "country", label: "Country", field: "country", align: "left" },
+			{ name: "affiliate", label: "Affiliate", field: "affiliate", align: "left" },
+			{ name: "deduction", label: "Payouts", field: "deduction", align: "left" },
+			{ name: "amount", label: "CAPs", field: "amount", align: "left" },
+			{ name: "total_count", label: "Current Count", field: "total_count", align: "left" },
+			{ name: "split", label: "Split", field: "split", align: "left" },
+			{ name: "status_sale", label: "Status Sale", field: "status_sale", align: "left" },
+			{ name: "percent", label: "%*", field: "percent", align:"left" },
+			{ name: "source", label: "Source*", field: "source", align:"left" },
+			{ name: "funnel", label: "Funnel*", field: "funnel", align:"left" },
+			{ name: "experience", label: "Experience*", field: "experience", align:"left" },
+			{ name: "comment", label: "Comment*", field: "comment", align:"left" }
 		]
 
 		const filter_component = ref(null)
-
-		const query = ref({
-			id: "",
-			region: "",
-			country: "",
-			affiliate: "",
-			split: [],
-			status_sale: ""
-		})
 
 		const loading = ref(false)
 
@@ -161,18 +152,22 @@ export default {
 			}
 		}
 
+		const query = computed(() => deals_store.filter)
+
 		const queryFilter = (rows, terms, cols, getCellValue) => {
 			return _.filter(rows, (row) => {
 				return (!!terms.id ? row.id.toString().includes(terms.id) : true) &&
 					(!!terms.region ? row.region.toLowerCase().includes(terms.region.toLowerCase()) : true) &&
-					(!!terms.country ? (row.country_iso + row.country_name).toLowerCase().includes(terms.country.toLowerCase()) : true) &&
+					(!!terms.country ? (row.country_iso + " - " + row.country_name).toLowerCase().includes(terms.country.toLowerCase()) : true) &&
 					(!!terms.affiliate ? row.affiliate_info.toLowerCase().includes(terms.affiliate.toLowerCase()) : true) &&
-					(terms.split.length > 0 ? (row.split ? terms.split.map((t) => t.text).includes(row.split.name) : false) : true) &&
+					(!!terms.split && terms.split.length > 0 ? (row.split ? terms.split.map((t) => t.text).includes(row.split.name) : false) : true) &&
 					(!!terms.status_sale ? row.status_sale === terms.status_sale : true)
 			})
 		}
 
-		const table_height = computed(() => $q.screen.height - (filter_component.value ? filter_component.value.$el.clientHeight : 0) - 42)
+		const table_height = computed(() =>
+			$q.screen.height - (filter_component.value ? filter_component.value.$el.clientHeight : 0) - 42
+		)
 
 		return {
 			loading,

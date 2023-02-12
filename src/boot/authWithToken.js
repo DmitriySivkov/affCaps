@@ -20,7 +20,7 @@ export default async({ store, router }) => {
 			.then((response) => {
 				user_store.setUserData(response.data)
 
-				if (hasRole(4)) {
+				if (hasRole(4) || hasRole(1) || hasRole(7)) {
 					common_store.setSelectedTable("sales")
 				}
 
