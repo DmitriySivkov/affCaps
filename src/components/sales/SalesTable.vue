@@ -1,5 +1,7 @@
 <template>
+	<SalesTableFilter ref="filter_component" />
 	<q-table
+		:style="{height: table_height + 'px'}"
 		class="sticky-header-table"
 		:loading="loading"
 		:rows="caps"
@@ -7,6 +9,8 @@
 		row-key="id"
 		:rows-per-page-options="[0]"
 		:pagination="pagination"
+		:filter="query"
+		:filter-method="queryFilter"
 		virtual-scroll
 	>
 		<template v-slot:header="props">
@@ -59,7 +63,7 @@
 </template>
 
 <script>
-import { ref } from "vue"
+import { computed, ref } from "vue"
 import { api } from "src/boot/axios"
 import StandardCell from "src/components/sales/cells/StandardCell.vue"
 import ScheduleCell from "src/components/sales/cells/ScheduleCell.vue"
@@ -70,7 +74,10 @@ import RegionCell from "src/components/sales/cells/RegionCell.vue"
 import CountryCell from "src/components/sales/cells/CountryCell.vue"
 import { useCommonStore } from "src/stores/common"
 import { useDealsStore } from "src/stores/deals"
-import { Loading } from "quasar"
+import { useQuasar, Loading } from "quasar"
+import SalesTableFilter from "src/components/sales/filters/SalesTableFilter.vue"
+import _ from "lodash"
+import { useSalesStore } from "src/stores/sales"
 export default {
 	components: {
 		StandardCell,
@@ -79,10 +86,13 @@ export default {
 		ScheduleCell,
 		PayoutsCell,
 		ManagerCell,
-		BrokerCell
+		BrokerCell,
+		SalesTableFilter
 	},
 	setup() {
+		const $q = useQuasar()
 		const deals_store = useDealsStore()
+		const sales_store = useSalesStore()
 		const common_store = useCommonStore()
 
 		const caps = ref([])
@@ -163,13 +173,34 @@ export default {
 			Loading.hide()
 		}
 
+		const query = computed(() => sales_store.filter)
+
+		const queryFilter = (rows, terms, cols, getCellValue) => {
+			return _.filter(rows, (row) => {
+				return (!!terms.id ? row.id.toString().includes(terms.id) : true) &&
+					(!!terms.region ? row.provider.region.name.toLowerCase().includes(terms.region.toLowerCase()) : true) &&
+					(!!terms.country ? (row.country.iso + " - " + row.country.en_name).toLowerCase().includes(terms.country.toLowerCase()) : true) &&
+					(!!terms.provider && terms.provider.length > 0 ? terms.provider.map((p) => p.id).includes(row.provider.id) : true)
+			})
+		}
+
+		const filter_component = ref(null)
+
+		const table_height = computed(() =>
+			$q.screen.height - (filter_component.value ? filter_component.value.$el.clientHeight : 0) - 42
+		)
+
 		return {
 			loading,
 			caps,
 			pagination,
 			columns,
 			getCell,
-			showDeals
+			showDeals,
+			table_height,
+			filter_component,
+			query,
+			queryFilter
 		}
 	}
 }
