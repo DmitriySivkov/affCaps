@@ -1,7 +1,8 @@
 <template>
-	<q-card class="q-pa-sm row q-col-gutter-sm">
+	<q-card class="q-pa-xs row q-col-gutter-xs">
 		<div class="col-md-2">
 			<q-input
+				dense
 				label="#ID"
 				filled
 				:model-value="sales_store.filter.id"
@@ -10,6 +11,7 @@
 		</div>
 		<div class="col-md-2">
 			<q-input
+				dense
 				label="Region"
 				filled
 				:model-value="sales_store.filter.region"
@@ -18,6 +20,7 @@
 		</div>
 		<div class="col-md-2">
 			<q-input
+				dense
 				label="Country"
 				filled
 				:model-value="sales_store.filter.country"
@@ -26,6 +29,7 @@
 		</div>
 		<div class="col-md-6">
 			<q-select
+				dense
 				clearable
 				filled
 				multiple
@@ -42,6 +46,7 @@
 			>
 				<template v-slot:selected-item="{opt, index, removeAtIndex}">
 					<q-chip
+						dense
 						removable
 						color="indigo-8"
 						text-color="white"

@@ -187,7 +187,7 @@ export default {
 		const filter_component = ref(null)
 
 		const table_height = computed(() =>
-			$q.screen.height - (filter_component.value ? filter_component.value.$el.clientHeight : 0) - 42
+			$q.screen.height - (filter_component.value ? filter_component.value.$el.clientHeight : 0) - 46
 		)
 
 		return {

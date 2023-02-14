@@ -1,5 +1,5 @@
 <template>
-	<q-header elevated>
+	<q-header>
 		<q-toolbar>
 			<div class="col-8">
 				<q-btn

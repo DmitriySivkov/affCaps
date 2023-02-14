@@ -59,6 +59,7 @@ import CountryCell from "src/components/deals/cells/CountryCell.vue"
 import AffiliateCell from "src/components/deals/cells/AffiliateCell.vue"
 import CurrentCountCell from "src/components/deals/cells/CurrentCountCell.vue"
 import SplitCell from "src/components/deals/cells/SplitCell.vue"
+import ManagerCell from "src/components/deals/cells/ManagerCell.vue"
 import { useDealsStore } from "src/stores/deals"
 export default {
 	components: {
@@ -68,6 +69,7 @@ export default {
 		AffiliateCell,
 		CurrentCountCell,
 		SplitCell,
+		ManagerCell,
 		AdminDealsTableFilter
 	},
 	setup() {
@@ -85,6 +87,7 @@ export default {
 			{ name: "total_count", label: "Current Count", field: "total_count", align: "left" },
 			{ name: "split", label: "Split", field: "split", align: "left" },
 			{ name: "status_sale", label: "Status Sale", field: "status_sale", align: "left" },
+			{ name: "manager", label: "Manager", field: "manager", align: "left" },
 			{ name: "percent", label: "%*", field: "percent", align:"left" },
 			{ name: "source", label: "Source*", field: "source", align:"left" },
 			{ name: "funnel", label: "Funnel*", field: "funnel", align:"left" },
@@ -147,6 +150,8 @@ export default {
 				return "CurrentCountCell"
 			case "split":
 				return "SplitCell"
+			case "manager":
+				return "ManagerCell"
 			default:
 				return "StandardCell"
 			}
@@ -166,7 +171,7 @@ export default {
 		}
 
 		const table_height = computed(() =>
-			$q.screen.height - (filter_component.value ? filter_component.value.$el.clientHeight : 0) - 42
+			$q.screen.height - (filter_component.value ? filter_component.value.$el.clientHeight : 0) - 46
 		)
 
 		return {
