@@ -1,24 +1,45 @@
 <template>
 	<q-header>
-		<q-toolbar>
-			<div class="col-8">
+		<q-toolbar class="q-electron-drag">
+			<div class="col-2">
 				<q-btn
 					flat
-					round
 					icon="menu"
 					aria-label="Menu"
 					@click="toggleLeftDrawer"
 				/>
 			</div>
-			<div class="col-4">
+			<div class="col">
 				<q-btn
 					flat
-					round
 					icon="login"
 					class="float-right"
 					@click="toggleAuthDrawer"
 				/>
 			</div>
+			<q-bar
+				v-if="is_electron"
+				class="q-ml-md"
+			>
+				<q-btn
+					dense
+					flat
+					icon="minimize"
+					@click="minimize"
+				/>
+				<q-btn
+					dense
+					flat
+					icon="crop_square"
+					@click="toggleMaximize"
+				/>
+				<q-btn
+					dense
+					flat
+					icon="close"
+					@click="closeApp"
+				/>
+			</q-bar>
 		</q-toolbar>
 	</q-header>
 
@@ -78,12 +99,36 @@ export default {
 			toggleAuthDrawer()
 		})
 
+		const is_electron = process.env.MODE === "electron"
+
+		const minimize = () => {
+			if (is_electron) {
+				window.myWindowAPI.minimize()
+			}
+		}
+
+		const toggleMaximize = () => {
+			if (is_electron) {
+				window.myWindowAPI.toggleMaximize()
+			}
+		}
+
+		const closeApp = () => {
+			if (is_electron) {
+				window.myWindowAPI.close()
+			}
+		}
+
 		return {
 			leftDrawerOpen,
 			authDrawerOpen,
 			toggleLeftDrawer,
 			toggleAuthDrawer,
-			router
+			router,
+			is_electron,
+			minimize,
+			toggleMaximize,
+			closeApp
 		}
 	}
 }

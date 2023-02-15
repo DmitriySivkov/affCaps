@@ -1,7 +1,6 @@
 <template>
-	<AdminDealsTableFilter ref="filter_component" />
+	<AdminDealsTableFilter />
 	<q-table
-		:style="{height: table_height + 'px'}"
 		class="sticky-header-table"
 		:loading="loading"
 		:rows="deals"
@@ -52,7 +51,7 @@ import { ref, computed } from "vue"
 import { api } from "src/boot/axios"
 import _ from "lodash"
 import { useQuasar } from "quasar"
-import AdminDealsTableFilter from "components/deals/filters/AdminDealsTableFilter.vue"
+import AdminDealsTableFilter from "src/components/deals/filters/AdminDealsTableFilter.vue"
 import StandardCell from "src/components/deals/cells/StandardCell.vue"
 import RegionCell from "src/components/deals/cells/RegionCell.vue"
 import CountryCell from "src/components/deals/cells/CountryCell.vue"
@@ -169,10 +168,6 @@ export default {
 			})
 		}
 
-		const table_height = computed(() =>
-			$q.screen.height - (filter_component.value ? filter_component.value.$el.clientHeight : 0) - 46
-		)
-
 		return {
 			loading,
 			deals,
@@ -180,9 +175,7 @@ export default {
 			columns,
 			getCell,
 			query,
-			queryFilter,
-			filter_component,
-			table_height
+			queryFilter
 		}
 	}
 }

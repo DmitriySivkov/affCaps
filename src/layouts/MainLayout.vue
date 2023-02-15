@@ -2,7 +2,9 @@
 	<q-layout view="lHh Lpr lFf">
 		<MainHeader />
 		<q-page-container v-if="is_logged">
-			<router-view />
+			<q-page style="height:1px">
+				<router-view />
+			</q-page>
 		</q-page-container>
 	</q-layout>
 </template>

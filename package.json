@@ -3,6 +3,7 @@
   "version": "0.0.1",
   "description": "Caps App Project",
   "productName": "Caps App",
+	"homepage": "",
   "author": "Dmitrii Sivkov <sivkovdw@yandex.ru>",
   "private": true,
   "scripts": {
@@ -11,6 +12,7 @@
     "test": "echo \"No test specified\" && exit 0"
   },
   "dependencies": {
+    "@electron/remote": "^2.0.9",
     "@quasar/extras": "^1.0.0",
     "axios": "^0.21.1",
     "lodash": "^4.17.21",
@@ -24,6 +26,7 @@
     "@quasar/app-vite": "^1.0.0",
     "@quasar/babel-preset-app": "^2.0.2",
     "autoprefixer": "^10.4.2",
+    "electron": "^23.0.0",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-vue": "^9.0.0",
