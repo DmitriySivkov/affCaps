@@ -2,8 +2,8 @@
   "name": "caps",
   "version": "0.0.1",
   "description": "Caps App Project",
-  "productName": "Caps App",
-	"homepage": "",
+  "productName": "CRYP.IM - Caps",
+  "homepage": "",
   "author": "Dmitrii Sivkov <sivkovdw@yandex.ru>",
   "private": true,
   "scripts": {
@@ -27,6 +27,7 @@
     "@quasar/babel-preset-app": "^2.0.2",
     "autoprefixer": "^10.4.2",
     "electron": "^23.0.0",
+    "electron-builder": "^22.14.13",
     "eslint": "^8.10.0",
     "eslint-config-prettier": "^8.1.0",
     "eslint-plugin-vue": "^9.0.0",

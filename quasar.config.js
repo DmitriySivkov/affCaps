@@ -69,7 +69,7 @@ module.exports = configure(function (ctx) {
 			// publicPath: '/',
 			// analyze: true,
 			env: {
-				BACKEND_SERVER: ctx.dev ? "http://localhost:8080" : "https://cryp.im"
+				BACKEND_SERVER: ctx.dev ? "http://localhost:8080" : "https://0bb8-109-161-32-198.ngrok.io"
 			},
 			// rawDefine: {}
 			// ignorePublicFolder: true,
