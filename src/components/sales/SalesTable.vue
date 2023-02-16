@@ -1,6 +1,7 @@
 <template>
 	<SalesTableFilter ref="filter_component" />
 	<q-table
+		ref="table"
 		:style="{height: table_height + 'px'}"
 		class="sticky-header-table"
 		:loading="loading"
@@ -11,6 +12,7 @@
 		:pagination="pagination"
 		:filter="query"
 		:filter-method="queryFilter"
+		:sort-method="sortSales"
 		virtual-scroll
 	>
 		<template v-slot:header="props">
@@ -59,6 +61,27 @@
 				</q-td>
 			</q-tr>
 		</template>
+		<template v-slot:bottom-row="{ cols }">
+			<q-tr class="bg-primary text-white">
+				<template
+					v-for="col in cols"
+					:key="col.name"
+				>
+					<q-td
+						auto-width
+						class="text-left"
+					>
+						<span v-if="col.name === 'amount'">
+							{{ cap_count }}
+						</span>
+						<span v-if="col.name === 'current_cap_count'">
+							{{ current_cap_count }}
+						</span>
+					</q-td>
+				</template>
+				<q-td auto-width />
+			</q-tr>
+		</template>
 	</q-table>
 </template>
 
@@ -67,7 +90,6 @@ import { computed, ref } from "vue"
 import { api } from "src/boot/axios"
 import StandardCell from "src/components/sales/cells/StandardCell.vue"
 import ScheduleCell from "src/components/sales/cells/ScheduleCell.vue"
-import PayoutsCell from "src/components/sales/cells/PayoutsCell.vue"
 import ManagerCell from "src/components/sales/cells/ManagerCell.vue"
 import BrokerCell from "src/components/sales/cells/BrokerCell.vue"
 import RegionCell from "src/components/sales/cells/RegionCell.vue"
@@ -84,7 +106,6 @@ export default {
 		RegionCell,
 		CountryCell,
 		ScheduleCell,
-		PayoutsCell,
 		ManagerCell,
 		BrokerCell,
 		SalesTableFilter
@@ -94,16 +115,17 @@ export default {
 		const deals_store = useDealsStore()
 		const sales_store = useSalesStore()
 		const common_store = useCommonStore()
+		const table = ref(null)
 
 		const caps = ref([])
 		const columns = [
-			{ name: "id", label: "#ID", align: "left", field: "id", sortable: true },
-			{ name: "region", label: "Region", align: "left" },
-			{ name: "country", label: "Country", align: "left" },
-			{ name: "broker", label: "Broker", align: "left" },
-			{ name: "payouts", label: "Payouts", align: "left" },
-			{ name: "amount", label: "CAPs", align: "left" },
-			{ name: "current_cap_count", label: "Current Count", align: "left" },
+			{ name: "id", label: "#ID", align: "left", field: "id", sortable: true, sort_type: "numeric" },
+			{ name: "region", label: "Region", align: "left", sortable: true, sort_type: "string" },
+			{ name: "country", label: "Country", align: "left", sortable: true, sort_type: "string" },
+			{ name: "broker", label: "Broker", align: "left", sortable: true, sort_type: "numeric" },
+			{ name: "payouts", label: "Payouts", align: "left", sortable: true, sort_type: "numeric" },
+			{ name: "amount", label: "CAPs", align: "left", sortable: true, sort_type: "numeric" },
+			{ name: "current_cap_count", label: "Current Count", align: "left", sortable: true, sort_type: "numeric" },
 			{ name: "working_hours", label: "Working Hours (today)", align: "left" },
 			{ name: "manager", label: "Manager", align: "left" }
 		]
@@ -145,8 +167,6 @@ export default {
 				return "CountryCell"
 			case "working_hours":
 				return "ScheduleCell"
-			case "payouts":
-				return "PayoutsCell"
 			case "manager":
 				return "ManagerCell"
 			case "broker":
@@ -190,6 +210,57 @@ export default {
 			$q.screen.height - (filter_component.value ? filter_component.value.$el.clientHeight : 0) - 46
 		)
 
+		const numeric_sort = columns.filter((c) => c.sortable && c.sort_type === "numeric")
+			.map((c) => c.name)
+
+		const string_sort = columns.filter((c) => c.sortable && c.sort_type === "string")
+			.map((c) => c.name)
+
+		const sortSales = (rows, sortBy, descending) => {
+			const data = [...rows]
+
+			if (sortBy) {
+				data.sort((a, b) => {
+					const x = descending ? b : a
+					const y = descending ? a : b
+
+					if (string_sort.includes(sortBy)) {
+						if (sortBy === "region") {
+							return x["provider"]["region"]["name"] > y["provider"]["region"]["name"] ?
+								1 :
+								x["provider"]["region"]["name"] < y["provider"]["region"]["name"] ? -1 : 0
+						}
+						if (sortBy === "country") {
+							return x["country"]["en_name"] > y["country"]["en_name"] ?
+								1 :
+								x["country"]["en_name"] < y["country"]["en_name"] ? -1 : 0
+						}
+						return x[ sortBy ] > y[ sortBy ] ? 1 : x[ sortBy ] < y[ sortBy ] ? -1 : 0
+					}
+
+					if (numeric_sort.includes(sortBy)) {
+						if (sortBy === "broker") {
+							return parseFloat(x["provider_id"]) - parseFloat(y["provider_id"])
+						}
+						return parseFloat(x[ sortBy ]) - parseFloat(y[ sortBy ])
+					}
+
+				})
+			}
+
+			return data
+		}
+
+		const cap_count = computed(() => table.value ?
+			table.value.computedRows.reduce((carry, c) => carry + c.amount, 0)
+			: 0
+		)
+
+		const current_cap_count = computed(() => table.value ?
+			table.value.computedRows.reduce((carry, c) => carry + c.current_cap_count, 0)
+			: 0
+		)
+
 		return {
 			loading,
 			caps,
@@ -200,7 +271,11 @@ export default {
 			table_height,
 			filter_component,
 			query,
-			queryFilter
+			queryFilter,
+			sortSales,
+			table,
+			cap_count,
+			current_cap_count
 		}
 	}
 }

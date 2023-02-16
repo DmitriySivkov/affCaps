@@ -1,7 +1,6 @@
 .sticky-header-table {
 	height: calc(100% - 93px);
 
-	.q-table__top,
 	.q-table__bottom,
 	thead tr:first-child th {
 		background-color: #c1f4cd
@@ -22,5 +21,13 @@
 
 	&.q-table--loading thead tr:last-child th {
 		top: 48px
+	}
+
+
+	.q-table > tbody:last-child {
+		background-color: #c1f4cd;
+		position: sticky;
+		z-index: 1;
+		bottom:0;
 	}
 }
