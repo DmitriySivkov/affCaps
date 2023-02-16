@@ -61,7 +61,10 @@
 				</q-td>
 			</q-tr>
 		</template>
-		<template v-slot:bottom-row="{ cols }">
+		<template
+			v-if="caps.length > 0"
+			v-slot:bottom-row="{ cols }"
+		>
 			<q-tr class="bg-primary text-white">
 				<template
 					v-for="col in cols"

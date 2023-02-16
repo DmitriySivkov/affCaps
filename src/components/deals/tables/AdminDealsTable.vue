@@ -1,7 +1,6 @@
 <template>
-	<AdminDealsTableFilter ref="filter_component" />
+	<AdminDealsTableFilter />
 	<q-table
-		:style="{height: table_height + 'px'}"
 		class="sticky-header-table"
 		:loading="loading"
 		:rows="deals"
@@ -11,6 +10,7 @@
 		:pagination="pagination"
 		:filter="query"
 		:filter-method="queryFilter"
+		:sort-method="sortDeals"
 		virtual-scroll
 	>
 		<template v-slot:header="props">
@@ -51,7 +51,6 @@
 import { ref, computed } from "vue"
 import { api } from "src/boot/axios"
 import _ from "lodash"
-import { useQuasar } from "quasar"
 import AdminDealsTableFilter from "components/deals/filters/AdminDealsTableFilter.vue"
 import StandardCell from "src/components/deals/cells/StandardCell.vue"
 import RegionCell from "src/components/deals/cells/RegionCell.vue"
@@ -73,20 +72,20 @@ export default {
 		AdminDealsTableFilter
 	},
 	setup() {
-		const $q = useQuasar()
 		const deals_store = useDealsStore()
 
 		const deals = ref([])
 		const columns = [
-			{ name: "id", label: "#ID", align: "left", field: "id", sortable: true },
+			{ name: "id", label: "#ID", align: "left", field: "id", sortable: true, sort_type: "numeric" },
 			{ name: "region", label: "Region", field: "region", align: "left" },
-			{ name: "country", label: "Country", field: "country", align: "left" },
-			{ name: "affiliate", label: "Affiliate", field: "affiliate", align: "left" },
-			{ name: "deduction", label: "Payouts", field: "deduction", align: "left" },
-			{ name: "amount", label: "CAPs", field: "amount", align: "left" },
-			{ name: "total_count", label: "Current Count", field: "total_count", align: "left" },
+			{ name: "country", label: "Country", field: "country", align: "left", sortable: true, sort_type: "string" },
+			{ name: "affiliate", label: "Affiliate", field: "affiliate", align: "left", sortable: true, sort_type: "numeric" },
+			{ name: "deduction", label: "Payouts", field: "deduction", align: "left", sortable: true, sort_type: "numeric" },
+			{ name: "amount", label: "CAPs", field: "amount", align: "left", sortable: true, sort_type: "numeric" },
+			{ name: "total_count", label: "Current Count", field: "total_count", align: "left", sortable: true, sort_type: "numeric" },
+			{ name: "total_country_cap", label: "Total Country Cap", field: "total_country_cap", align: "left", sortable: true, sort_type: "numeric" },
 			{ name: "split", label: "Split", field: "split", align: "left" },
-			{ name: "status_sale", label: "Status Sale", field: "status_sale", align: "left" },
+			{ name: "status_sale", label: "Status Sale", field: "status_sale", align: "left", sortable: true, sort_type: "string" },
 			{ name: "manager", label: "Manager", field: "manager", align: "left" },
 			{ name: "percent", label: "%*", field: "percent", align:"left" },
 			{ name: "source", label: "Source*", field: "source", align:"left" },
@@ -94,8 +93,6 @@ export default {
 			{ name: "experience", label: "Experience*", field: "experience", align:"left" },
 			{ name: "comment", label: "Comment*", field: "comment", align:"left" }
 		]
-
-		const filter_component = ref(null)
 
 		const loading = ref(false)
 
@@ -170,9 +167,44 @@ export default {
 			})
 		}
 
-		const table_height = computed(() =>
-			$q.screen.height - (filter_component.value ? filter_component.value.$el.clientHeight : 0) - 46
-		)
+		const numeric_sort = columns.filter((c) => c.sortable && c.sort_type === "numeric")
+			.map((c) => c.name)
+
+		const string_sort = columns.filter((c) => c.sortable && c.sort_type === "string")
+			.map((c) => c.name)
+
+		const sortDeals = (rows, sortBy, descending) => {
+			const data = [...rows]
+
+			if (sortBy) {
+				data.sort((a, b) => {
+					const x = descending ? b : a
+					const y = descending ? a : b
+
+					if (string_sort.includes(sortBy)) {
+						if (sortBy === "country") {
+							return x["country_name"] > y["country_name"] ?
+								1 :
+								x["country_name"] < y["country_name"] ? -1 : 0
+						}
+						return x[ sortBy ] > y[ sortBy ] ? 1 : x[ sortBy ] < y[ sortBy ] ? -1 : 0
+					}
+
+					if (numeric_sort.includes(sortBy)) {
+						if (sortBy === "broker") {
+							return parseFloat(x["provider_id"]) - parseFloat(y["provider_id"])
+						}
+						if (sortBy === "affiliate") {
+							return parseFloat(x["affiliate_id"]) - parseFloat(y["affiliate_id"])
+						}
+						return parseFloat(x[ sortBy ]) - parseFloat(y[ sortBy ])
+					}
+
+				})
+			}
+
+			return data
+		}
 
 		return {
 			loading,
@@ -182,8 +214,7 @@ export default {
 			getCell,
 			query,
 			queryFilter,
-			filter_component,
-			table_height
+			sortDeals
 		}
 	}
 }
