@@ -57,6 +57,7 @@ import RegionCell from "src/components/deals/cells/RegionCell.vue"
 import CountryCell from "src/components/deals/cells/CountryCell.vue"
 import AffiliateCell from "src/components/deals/cells/AffiliateCell.vue"
 import CurrentCountCell from "src/components/deals/cells/CurrentCountCell.vue"
+import FreeCapCell from "components/deals/cells/FreeCapCell.vue"
 import SplitCell from "src/components/deals/cells/SplitCell.vue"
 import ManagerCell from "src/components/deals/cells/ManagerCell.vue"
 import { useDealsStore } from "src/stores/deals"
@@ -67,6 +68,7 @@ export default {
 		CountryCell,
 		AffiliateCell,
 		CurrentCountCell,
+		FreeCapCell,
 		SplitCell,
 		ManagerCell,
 		AdminDealsTableFilter
@@ -83,6 +85,7 @@ export default {
 			{ name: "deduction", label: "Payouts", field: "deduction", align: "left", sortable: true, sort_type: "numeric" },
 			{ name: "amount", label: "CAPs", field: "amount", align: "left", sortable: true, sort_type: "numeric" },
 			{ name: "total_count", label: "Current Count", field: "total_count", align: "left", sortable: true, sort_type: "numeric" },
+			{ name: "free_cap", label: "Free Country Cap", field: "free_cap", align: "left", sortable: true, sort_type: "numeric" },
 			{ name: "total_country_cap", label: "Total Country Cap", field: "total_country_cap", align: "left", sortable: true, sort_type: "numeric" },
 			{ name: "split", label: "Split", field: "split", align: "left" },
 			{ name: "status_sale", label: "Status Sale", field: "status_sale", align: "left", sortable: true, sort_type: "string" },
@@ -145,6 +148,8 @@ export default {
 				return "AffiliateCell"
 			case "total_count":
 				return "CurrentCountCell"
+			case "free_cap":
+				return "FreeCapCell"
 			case "split":
 				return "SplitCell"
 			case "manager":
@@ -192,12 +197,16 @@ export default {
 
 					if (numeric_sort.includes(sortBy)) {
 						if (sortBy === "broker") {
-							return parseFloat(x["provider_id"]) - parseFloat(y["provider_id"])
+							return parseInt(x["provider_id"]) - parseInt(y["provider_id"])
 						}
 						if (sortBy === "affiliate") {
-							return parseFloat(x["affiliate_id"]) - parseFloat(y["affiliate_id"])
+							return parseInt(x["affiliate_id"]) - parseInt(y["affiliate_id"])
 						}
-						return parseFloat(x[ sortBy ]) - parseFloat(y[ sortBy ])
+						if (sortBy === "free_cap") {
+							return (parseInt(x["total_country_cap"]) + parseInt(x["total_country_reserved"])) -
+								(parseInt(y["total_country_cap"]) + parseInt(y["total_country_reserved"]))
+						}
+						return parseInt(x[ sortBy ]) - parseInt(y[ sortBy ])
 					}
 
 				})
