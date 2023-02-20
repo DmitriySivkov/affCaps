@@ -32,19 +32,58 @@
 			<q-tr
 				:props="props"
 			>
-				<q-td
-					auto-width
+				<template
 					v-for="col in props.cols"
 					:key="col.name"
-					:props="props"
 				>
-					<component
-						:is="getCell(col.name)"
-						:row="props.row"
-						:col="col"
-						:key="props.row.id"
-					/>
-				</q-td>
+					<q-td
+						:props="props"
+					>
+						<RegionCell
+							v-if="col.name === 'region'"
+							:row="props.row"
+							:col="col"
+							:key="props.row.id"
+						/>
+						<CountryCell
+							v-else-if="col.name === 'country'"
+							:row="props.row"
+							:col="col"
+							:key="props.row.id"
+						/>
+						<ScheduleCell
+							v-else-if="col.name === 'working_hours'"
+							:row="props.row"
+							:col="col"
+							:key="props.row.id"
+						/>
+						<ManagerCell
+							v-else-if="col.name === 'manager'"
+							:row="props.row"
+							:col="col"
+							:key="props.row.id"
+						/>
+						<BrokerCell
+							v-else-if="col.name === 'broker'"
+							:row="props.row"
+							:col="col"
+							:key="props.row.id"
+						/>
+						<CapsCell
+							v-else-if="col.name === 'amount'"
+							:row="props.row"
+							:col="col"
+							:key="props.row.id"
+							@change="capsChanged"
+						/>
+						<StandardCell
+							v-else
+							:row="props.row"
+							:col="col"
+							:key="props.row.id"
+						/>
+					</q-td>
+				</template>
 				<q-td>
 					<q-list dense>
 						<q-item
@@ -97,6 +136,7 @@ import ManagerCell from "src/components/sales/cells/ManagerCell.vue"
 import BrokerCell from "src/components/sales/cells/BrokerCell.vue"
 import RegionCell from "src/components/sales/cells/RegionCell.vue"
 import CountryCell from "src/components/sales/cells/CountryCell.vue"
+import CapsCell from "src/components/sales/cells/CapsCell.vue"
 import { useCommonStore } from "src/stores/common"
 import { useDealsStore } from "src/stores/deals"
 import { useQuasar, Loading } from "quasar"
@@ -111,6 +151,7 @@ export default {
 		ScheduleCell,
 		ManagerCell,
 		BrokerCell,
+		CapsCell,
 		SalesTableFilter
 	},
 	setup() {
@@ -174,6 +215,8 @@ export default {
 				return "ManagerCell"
 			case "broker":
 				return "BrokerCell"
+			case "amount":
+				return "CapsCell"
 			default:
 				return "StandardCell"
 			}
@@ -264,6 +307,18 @@ export default {
 			: 0
 		)
 
+		const capsChanged = async ({ row, value }) => {
+			const response = await api.post("/affiliateCaps/process", {
+				field: "caps",
+				row,
+				value
+			})
+
+			caps.value.splice(caps.value.findIndex((c) => c.id === row.id), 1)
+
+			caps.value.unshift(response.data)
+		}
+
 		return {
 			loading,
 			caps,
@@ -278,7 +333,8 @@ export default {
 			sortSales,
 			table,
 			cap_count,
-			current_cap_count
+			current_cap_count,
+			capsChanged
 		}
 	}
 }
