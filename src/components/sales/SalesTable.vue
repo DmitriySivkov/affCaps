@@ -203,25 +203,6 @@ export default {
 
 		loadData()
 
-		const getCell = (col) => {
-			switch (col) {
-			case "region":
-				return "RegionCell"
-			case "country":
-				return "CountryCell"
-			case "working_hours":
-				return "ScheduleCell"
-			case "manager":
-				return "ManagerCell"
-			case "broker":
-				return "BrokerCell"
-			case "amount":
-				return "CapsCell"
-			default:
-				return "StandardCell"
-			}
-		}
-
 		const showDeals = async (row) => {
 			Loading.show()
 			const response = await api.get("/affiliateCaps/splits", {
@@ -308,6 +289,8 @@ export default {
 		)
 
 		const capsChanged = async ({ row, value }) => {
+			Loading.show()
+
 			const response = await api.post("/affiliateCaps/process", {
 				field: "caps",
 				row,
@@ -317,6 +300,8 @@ export default {
 			caps.value.splice(caps.value.findIndex((c) => c.id === row.id), 1)
 
 			caps.value.unshift(response.data)
+
+			Loading.hide()
 		}
 
 		return {
@@ -324,7 +309,6 @@ export default {
 			caps,
 			pagination,
 			columns,
-			getCell,
 			showDeals,
 			table_height,
 			filter_component,
