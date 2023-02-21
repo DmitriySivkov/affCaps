@@ -164,8 +164,8 @@ export default {
 		const queryFilter = (rows, terms, cols, getCellValue) => {
 			return _.filter(rows, (row) => {
 				return (!!terms.id ? row.id.toString().includes(terms.id) : true) &&
-					(!!terms.region ? row.region.toLowerCase().includes(terms.region.toLowerCase()) : true) &&
-					(!!terms.country ? (row.country_iso + " - " + row.country_name).toLowerCase().includes(terms.country.toLowerCase()) : true) &&
+					(!!terms.region && terms.region.length > 0 ? terms.region.map((r) => r.id).includes(row.provider.region.id) : true) &&
+					(!!terms.country && terms.country.length > 0 ? terms.country.map((c) => c.id).includes(row.country_id) : true) &&
 					(!!terms.affiliate ? row.affiliate_info.toLowerCase().includes(terms.affiliate.toLowerCase()) : true) &&
 					(!!terms.split && terms.split.length > 0 ? (row.split ? terms.split.map((t) => t.text).includes(row.split.name) : false) : true) &&
 					(!!terms.status_sale ? row.status_sale === terms.status_sale : true)
