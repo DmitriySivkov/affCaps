@@ -27,8 +27,6 @@ export default async({ store, router }) => {
 				if (hasRole(5)) {
 					common_store.setSelectedTable("deals")
 				}
-
-				notifySuccess("Добро пожаловать")
 			})
 			.catch((error) => {
 				let error_text = "Ошибка сервиса авторизации"
@@ -38,7 +36,5 @@ export default async({ store, router }) => {
 
 				notifyError(error_text)
 			})
-
-		Loading.hide()
 	}
 }

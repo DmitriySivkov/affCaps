@@ -105,7 +105,7 @@ export default {
 			let available_countries = []
 
 			const getAvailableCountries = async() => {
-				const response = await api.get("/affiliateCaps/countries")
+				const response = await api.get("/affiliateCaps/countries/available")
 				available_countries = response.data
 			}
 

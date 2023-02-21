@@ -225,8 +225,8 @@ export default {
 		const queryFilter = (rows, terms, cols, getCellValue) => {
 			return _.filter(rows, (row) => {
 				return (!!terms.id ? row.id.toString().includes(terms.id) : true) &&
-					(!!terms.region ? row.provider.region.name.toLowerCase().includes(terms.region.toLowerCase()) : true) &&
-					(!!terms.country ? (row.country.iso + " - " + row.country.en_name).toLowerCase().includes(terms.country.toLowerCase()) : true) &&
+					(!!terms.region && terms.region.length > 0 ? terms.region.map((r) => r.id).includes(row.provider.region.id) : true) &&
+					(!!terms.country && terms.country.length > 0 ? terms.country.map((c) => c.id).includes(row.country.id) : true) &&
 					(!!terms.provider && terms.provider.length > 0 ? terms.provider.map((p) => p.id).includes(row.provider.id) : true)
 			})
 		}
