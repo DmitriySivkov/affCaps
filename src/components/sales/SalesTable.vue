@@ -124,6 +124,8 @@
 				<q-td auto-width />
 			</q-tr>
 		</template>
+		<template v-slot:bottom>
+		</template>
 	</q-table>
 </template>
 

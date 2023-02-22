@@ -44,6 +44,15 @@
 				</q-td>
 			</q-tr>
 		</template>
+		<template v-slot:bottom>
+			<div class="col">
+				<q-btn
+					color="secondary"
+					icon="add"
+					@click="showNewDealDialog"
+				/>
+			</div>
+		</template>
 	</q-table>
 </template>
 
@@ -53,31 +62,34 @@ import { api } from "src/boot/axios"
 import _ from "lodash"
 import AdminDealsTableFilter from "src/components/deals/filters/AdminDealsTableFilter.vue"
 import StandardCell from "src/components/deals/cells/StandardCell.vue"
-import RegionCell from "src/components/deals/cells/RegionCell.vue"
 import CountryCell from "src/components/deals/cells/CountryCell.vue"
 import AffiliateCell from "src/components/deals/cells/AffiliateCell.vue"
 import CurrentCountCell from "src/components/deals/cells/CurrentCountCell.vue"
 import FreeCapCell from "src/components/deals/cells/FreeCapCell.vue"
 import SplitCell from "src/components/deals/cells/SplitCell.vue"
 import { useDealsStore } from "src/stores/deals"
+import AddDealDialog from "src/components/dialogs/addDealDialog.vue"
+import { Dialog, Loading } from "quasar"
+import { useNotification } from "src/composables/notification"
 export default {
 	components: {
 		StandardCell,
-		// RegionCell,
 		CountryCell,
 		AffiliateCell,
 		CurrentCountCell,
 		FreeCapCell,
 		SplitCell,
-		AdminDealsTableFilter
+		AdminDealsTableFilter,
+		AddDealDialog
 	},
 	setup() {
 		const deals_store = useDealsStore()
+		const { notifySuccess } = useNotification()
 
 		const deals = ref([])
 		const columns = [
 			{ name: "id", label: "#ID", align: "left", field: "id", sortable: true, sort_type: "numeric" },
-			{ name: "region", label: "Region", field: "region", align: "left" },
+			{ name: "region", label: "Region", field: "region", align: "left", sortable: true, sort_type: "string" },
 			{ name: "country", label: "Country", field: "country", align: "left", sortable: true, sort_type: "string" },
 			{ name: "affiliate", label: "Affiliate", field: "affiliate", align: "left", sortable: true, sort_type: "numeric" },
 			{ name: "deduction", label: "Payouts", field: "deduction", align: "left", sortable: true, sort_type: "numeric" },
@@ -87,11 +99,11 @@ export default {
 			{ name: "total_country_cap", label: "Total Country Cap", field: "total_country_cap", align: "left", sortable: true, sort_type: "numeric" },
 			{ name: "split", label: "Split", field: "split", align: "left" },
 			{ name: "status_sale", label: "Status Sale", field: "status_sale", align: "left", sortable: true, sort_type: "string" },
-			{ name: "percent", label: "%*", field: "percent", align:"left" },
-			{ name: "source", label: "Source*", field: "source", align:"left" },
-			{ name: "funnel", label: "Funnel*", field: "funnel", align:"left" },
-			{ name: "experience", label: "Experience*", field: "experience", align:"left" },
-			{ name: "comment", label: "Comment*", field: "comment", align:"left" }
+			{ name: "percent", label: "%", field: "percent", align:"left" },
+			{ name: "source", label: "Source", field: "source", align:"left" },
+			{ name: "funnel", label: "Funnel", field: "funnel", align:"left" },
+			{ name: "experience", label: "Experience", field: "experience", align:"left" },
+			{ name: "comment", label: "Comment", field: "comment", align:"left" }
 		]
 
 		const loading = ref(false)
@@ -136,8 +148,6 @@ export default {
 
 		const getCell = (col) => {
 			switch (col) {
-			// case "region":
-			// 	return "RegionCell"
 			case "country":
 				return "CountryCell"
 			case "affiliate":
@@ -158,7 +168,7 @@ export default {
 		const queryFilter = (rows, terms, cols, getCellValue) => {
 			return _.filter(rows, (row) => {
 				return (!!terms.id ? row.id.toString().includes(terms.id) : true) &&
-					(!!terms.region && terms.region.length > 0 ? terms.region.map((r) => r.id).includes(row.provider.region.id) : true) &&
+					(!!terms.region && terms.region.length > 0 ? terms.region.map((r) => r.id).includes(row.region_id) : true) &&
 					(!!terms.country && terms.country.length > 0 ? terms.country.map((c) => c.id).includes(row.country_id) : true) &&
 					(!!terms.affiliate ? row.affiliate_info.toLowerCase().includes(terms.affiliate.toLowerCase()) : true) &&
 					(!!terms.split && terms.split.length > 0 ? (row.split ? terms.split.map((t) => t.text).includes(row.split.name) : false) : true) &&
@@ -209,6 +219,52 @@ export default {
 			return data
 		}
 
+		const showNewDealDialog = () => {
+			Dialog.create({
+				component: AddDealDialog
+			}).onOk(async(new_deal) => {
+				await addNewDeal(new_deal)
+			})
+		}
+
+		const addNewDeal = async(new_deal) => {
+			deals.value.unshift({
+				affiliate_id: new_deal.affiliate.id,
+				affiliate_info: "#" + new_deal.affiliate.id + ": " + new_deal.affiliate.fullname + " (" + new_deal.affiliate.email + ")",
+				amount: new_deal.amount,
+				comment: new_deal.comment,
+				country_id: new_deal.country.id,
+				country_iso: new_deal.country.iso,
+				country_name: new_deal.country.en_name,
+				created_at: new_deal.created_at,
+				deduction: new_deal.deduction,
+				experience: new_deal.experience,
+				funnel: new_deal.funnel,
+				id: new_deal.id,
+				manager_id: null,
+				percent: new_deal.percent,
+				region: new_deal.region.name,
+				source: new_deal.source,
+				split: null,
+				split_id: null,
+				status_sale: new_deal.status_sale,
+				total_country_cap: deals.value.find((d) => d.country_id === new_deal.country.id).total_country_cap,
+				total_country_reserved: new_deal.total_country_reserved,
+				updated_at: new_deal.updated_at
+			})
+
+			deals.value = deals.value.map((d) => {
+				if (d.country_id === new_deal.country.id) {
+					d.total_country_reserved = new_deal.total_country_reserved
+				}
+
+				return d
+			})
+			// todo - same for admin
+			notifySuccess("Deal is added successfully")
+
+		}
+
 		return {
 			loading,
 			deals,
@@ -217,7 +273,8 @@ export default {
 			getCell,
 			query,
 			queryFilter,
-			sortDeals
+			sortDeals,
+			showNewDealDialog
 		}
 	}
 }
