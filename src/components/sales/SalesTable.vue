@@ -297,9 +297,10 @@ export default {
 				value
 			})
 
-			caps.value.splice(caps.value.findIndex((c) => c.id === row.id), 1)
+			const cap = caps.value.find((c) => c.id === row.id)
 
-			caps.value.unshift(response.data)
+			cap.id = response.data.id
+			cap.amount = response.data.amount
 
 			Loading.hide()
 		}
