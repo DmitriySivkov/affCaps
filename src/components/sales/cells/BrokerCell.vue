@@ -1,6 +1,6 @@
 <template>
-	<a :href="backend_url + '/admin/providers/' + row.provider_id + '/edit/'">
-		{{ row.provider_id }}
+	<a :href="backend_url + '/admin/providers/' + row.provider.id + '/edit/'">
+		{{ "#" + row.provider.id + " - " + row.provider.name }}
 	</a>
 </template>
 
