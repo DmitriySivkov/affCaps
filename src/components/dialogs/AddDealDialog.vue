@@ -70,7 +70,7 @@
 							]"
 						/>
 					</q-card-section>
-					<q-card-section class="col-5 q-py-none q-pl-sm q-pr-xs">
+					<q-card-section class="col-6 q-py-none q-pl-sm q-pr-xs">
 						<q-input
 							clearable
 							filled
@@ -80,7 +80,7 @@
 							v-model.number="deal.deduction"
 						/>
 					</q-card-section>
-					<q-card-section class="col-7 q-py-none q-pr-sm q-pl-xs">
+					<q-card-section class="col-6 q-py-none q-pr-sm q-pl-xs">
 						<q-input
 							clearable
 							filled
@@ -95,7 +95,7 @@
 							]"
 						/>
 					</q-card-section>
-					<q-card-section class="col-5 q-py-none q-pl-sm q-pr-xs">
+					<q-card-section class="col-6 q-py-none q-pl-sm q-pr-xs">
 						<q-input
 							clearable
 							filled
@@ -109,7 +109,7 @@
 							]"
 						/>
 					</q-card-section>
-					<q-card-section class="col-7 q-py-none q-pr-sm q-pl-xs">
+					<q-card-section class="col-6 q-py-none q-pr-sm q-pl-xs">
 						<q-input
 							clearable
 							filled

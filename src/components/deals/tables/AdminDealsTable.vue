@@ -44,6 +44,15 @@
 				</q-td>
 			</q-tr>
 		</template>
+		<template v-slot:bottom>
+			<div class="col">
+				<q-btn
+					color="secondary"
+					icon="add"
+					@click="showNewDealDialog"
+				/>
+			</div>
+		</template>
 	</q-table>
 </template>
 
@@ -60,6 +69,9 @@ import FreeCapCell from "components/deals/cells/FreeCapCell.vue"
 import SplitCell from "src/components/deals/cells/SplitCell.vue"
 import ManagerCell from "src/components/deals/cells/ManagerCell.vue"
 import { useDealsStore } from "src/stores/deals"
+import { Dialog } from "quasar"
+import AddDealDialog from "components/dialogs/AddDealDialog.vue"
+import { useNotification } from "src/composables/notification"
 export default {
 	components: {
 		StandardCell,
@@ -73,11 +85,12 @@ export default {
 	},
 	setup() {
 		const deals_store = useDealsStore()
+		const { notifySuccess } = useNotification()
 
 		const deals = ref([])
 		const columns = [
 			{ name: "id", label: "#ID", align: "left", field: "id", sortable: true, sort_type: "numeric" },
-			{ name: "region", label: "Region", field: "region", align: "left" },
+			{ name: "region", label: "Region", field: "region", align: "left", sortable: true, sort_type: "string" },
 			{ name: "country", label: "Country", field: "country", align: "left", sortable: true, sort_type: "string" },
 			{ name: "affiliate", label: "Affiliate", field: "affiliate", align: "left", sortable: true, sort_type: "numeric" },
 			{ name: "deduction", label: "Payouts", field: "deduction", align: "left", sortable: true, sort_type: "numeric" },
@@ -211,6 +224,52 @@ export default {
 			return data
 		}
 
+		const showNewDealDialog = () => {
+			Dialog.create({
+				component: AddDealDialog
+			}).onOk(async(new_deal) => {
+				await addNewDeal(new_deal)
+			})
+		}
+
+		const addNewDeal = async(new_deal) => {
+			deals.value.unshift({
+				affiliate_id: new_deal.affiliate.id,
+				affiliate_info: "#" + new_deal.affiliate.id + ": " + new_deal.affiliate.fullname + " (" + new_deal.affiliate.email + ")",
+				amount: new_deal.amount,
+				comment: new_deal.comment,
+				country_id: new_deal.country.id,
+				country_iso: new_deal.country.iso,
+				country_name: new_deal.country.en_name,
+				created_at: new_deal.created_at,
+				deduction: new_deal.deduction,
+				experience: new_deal.experience,
+				funnel: new_deal.funnel,
+				id: new_deal.id,
+				manager_id: null,
+				percent: new_deal.percent,
+				region: new_deal.region.name,
+				source: new_deal.source,
+				split: null,
+				split_id: null,
+				status_sale: new_deal.status_sale,
+				total_country_cap: deals.value.find((d) => d.country_id === new_deal.country.id).total_country_cap,
+				total_country_reserved: new_deal.total_country_reserved,
+				updated_at: new_deal.updated_at
+			})
+
+			deals.value = deals.value.map((d) => {
+				if (d.country_id === new_deal.country.id) {
+					d.total_country_reserved = new_deal.total_country_reserved
+				}
+
+				return d
+			})
+
+			notifySuccess("Deal is added successfully")
+
+		}
+
 		return {
 			loading,
 			deals,
@@ -219,7 +278,8 @@ export default {
 			getCell,
 			query,
 			queryFilter,
-			sortDeals
+			sortDeals,
+			showNewDealDialog
 		}
 	}
 }

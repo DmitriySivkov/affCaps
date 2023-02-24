@@ -69,7 +69,7 @@ import FreeCapCell from "src/components/deals/cells/FreeCapCell.vue"
 import SplitCell from "src/components/deals/cells/SplitCell.vue"
 import { useDealsStore } from "src/stores/deals"
 import AddDealDialog from "src/components/dialogs/addDealDialog.vue"
-import { Dialog, Loading } from "quasar"
+import { Dialog } from "quasar"
 import { useNotification } from "src/composables/notification"
 export default {
 	components: {
@@ -260,7 +260,7 @@ export default {
 
 				return d
 			})
-			// todo - same for admin
+
 			notifySuccess("Deal is added successfully")
 
 		}
