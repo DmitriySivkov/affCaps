@@ -207,6 +207,7 @@ export default {
 
 		const showDeals = async (row) => {
 			Loading.show()
+
 			const response = await api.get("/affiliateCaps/splits", {
 				params: {
 					providers: [row.provider_id],
@@ -214,11 +215,17 @@ export default {
 					limit: 999
 				}
 			})
+
 			deals_store.setFilter({
-				country: row.country.iso + " - " + row.country.en_name,
+				country: [{
+					id: row.country.id,
+					text: row.country.iso + " - " + row.country.en_name
+				}],
 				split: response.data.items
 			})
+
 			common_store.setSelectedTable("deals")
+
 			Loading.hide()
 		}
 
