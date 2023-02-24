@@ -175,7 +175,7 @@ export default {
 				return (!!terms.id ? row.id.toString().includes(terms.id) : true) &&
 					(!!terms.region && terms.region.length > 0 ? terms.region.map((r) => r.id).includes(row.region_id) : true) &&
 					(!!terms.country && terms.country.length > 0 ? terms.country.map((c) => c.id).includes(row.country_id) : true) &&
-					(!!terms.affiliate ? row.affiliate_info.toLowerCase().includes(terms.affiliate.toLowerCase()) : true) &&
+					(!!terms.affiliate && terms.affiliate.length > 0 ? terms.affiliate.map((c) => c.id).includes(row.affiliate_id) : true) &&
 					(!!terms.split && terms.split.length > 0 ? (row.split ? terms.split.map((t) => t.text).includes(row.split.name) : false) : true) &&
 					(!!terms.status_sale ? row.status_sale === terms.status_sale : true)
 			})

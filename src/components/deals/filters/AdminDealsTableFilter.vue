@@ -99,16 +99,7 @@
 				</template>
 			</q-select>
 		</div>
-		<div class="col-md-1">
-			<q-input
-				dense
-				label="Affiliate"
-				filled
-				:model-value="deals_store.filter.affiliate"
-				@update:model-value="queryChanged($event, 'affiliate')"
-			/>
-		</div>
-		<div class="col-md-2">
+		<div class="col-md-3">
 			<q-select
 				dense
 				clearable
@@ -118,6 +109,35 @@
 				:model-value="deals_store.filter.status_sale"
 				@update:model-value="queryChanged($event, 'status_sale')"
 			/>
+		</div>
+		<div class="col-12">
+			<q-select
+				dense
+				clearable
+				filled
+				multiple
+				label="Affiliate"
+				@filter="searchWebmaster"
+				:options="affiliate_options"
+				option-value="id"
+				option-label="text"
+				input-debounce="1000"
+				use-input
+				:model-value="deals_store.filter.affiliate"
+				@update:model-value="queryChanged($event, 'affiliate')"
+			>
+				<template v-slot:selected-item="{opt, index, removeAtIndex}">
+					<q-chip
+						dense
+						removable
+						color="indigo-8"
+						text-color="white"
+						@remove="removeAtIndex(index)"
+					>
+						{{ opt.text }}
+					</q-chip>
+				</template>
+			</q-select>
 		</div>
 	</q-card>
 </template>
@@ -186,15 +206,39 @@ export default {
 			})
 		}
 
+		const affiliate_options = ref([])
+
+		const searchWebmaster = async(query, update) => {
+			if (query.length < 1) return
+
+			const response = await api.get("/affiliateCaps/users", {
+				params: {
+					q: query,
+					filter: {
+						state: "active"
+					},
+					role: "webmaster",
+					// exclude: this.selectedAffiliates // todo - exclude selected affiliates
+				}
+			})
+
+			update(() => {
+				affiliate_options.value = response.data.items
+			})
+
+		}
+
 		return {
 			queryChanged,
 			searchSplit,
 			searchRegion,
 			searchCountry,
+			searchWebmaster,
 			split_options,
 			deals_store,
 			region_options,
-			country_options
+			country_options,
+			affiliate_options
 		}
 	}
 }
