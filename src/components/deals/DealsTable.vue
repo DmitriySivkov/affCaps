@@ -1,7 +1,7 @@
 <template>
-	<AdminDealsTable v-if="hasRole(1) || hasRole(7)" />
-	<SalesDealsTable v-if="hasRole(4)" />
-	<WebDealsTable v-if="hasRole(5)" />
+	<AdminDealsTable v-if="!!hasRole(1) || !!hasRole(7)" />
+	<SalesDealsTable v-if="!!hasRole(4)" />
+	<WebDealsTable v-if="!!hasRole(5)" />
 </template>
 
 <script>

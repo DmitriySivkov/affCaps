@@ -33,6 +33,7 @@
 		<div class="col-md-1">
 			<q-input
 				dense
+				clearable
 				label="#ID"
 				filled
 				:model-value="deals_store.filter.id"

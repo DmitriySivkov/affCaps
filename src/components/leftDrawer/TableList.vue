@@ -1,25 +1,52 @@
 <template>
 	<q-list>
-		<template
-			v-for="(item, index) in menu"
-			:key="index"
+		<q-item
+			v-if="can_see_sales"
+			clickable
+			:active="selected_table === 'sales'"
+			active-class="bg-secondary text-white"
+			v-ripple
+			@click="toggleTable('sales')"
 		>
-			<q-item
-				v-if="!item.hasOwnProperty('show') || item.show()"
-				clickable
-				:active="item.name === selected_table"
-				active-class="bg-secondary text-white"
-				v-ripple
-				@click="toggleTable(item.name)"
-			>
-				<q-item-section avatar>
-					<q-icon :name="item.icon" />
-				</q-item-section>
-				<q-item-section>
-					{{ item.label }}
-				</q-item-section>
-			</q-item>
-		</template>
+			<q-item-section avatar>
+				<q-icon name="view_list" />
+			</q-item-section>
+			<q-item-section>
+				Sales
+			</q-item-section>
+		</q-item>
+
+		<q-item
+			clickable
+			:active="selected_table === 'deals'"
+			active-class="bg-secondary text-white"
+			v-ripple
+			@click="toggleTable('deals')"
+		>
+			<q-item-section avatar>
+				<q-icon name="view_list" />
+			</q-item-section>
+			<q-item-section>
+				Deals
+			</q-item-section>
+		</q-item>
+
+		<q-item
+			v-if="is_from_sales"
+			clickable
+			:active="selected_table === 'deals'"
+			active-class="bg-accent text-white"
+			v-ripple
+			@click="backToSales"
+		>
+			<q-item-section avatar>
+				<q-icon name="keyboard_return" />
+			</q-item-section>
+			<q-item-section>
+				Sales: {{ "#" + common_store.meta.from_sales.id }} <br />
+				Broker {{ "#" + common_store.meta.from_sales.broker.id + " - " + common_store.meta.from_sales.broker.name }}
+			</q-item-section>
+		</q-item>
 	</q-list>
 </template>
 
@@ -27,44 +54,46 @@
 import { computed } from "vue"
 import { useUser } from "src/composables/user"
 import { useCommonStore } from "src/stores/common"
+import { useSalesStore } from "src/stores/sales"
+import { useDealsStore } from "src/stores/deals"
 export default {
 	setup() {
-		const menu = [
-			{
-				icon: "view_list",
-				label: "Sales",
-				name: "sales",
-				show: () => can_see_sales.value
-			},
-			{
-				icon: "view_list",
-				label: "Deals",
-				name: "deals",
-			},
-		]
-
 		const common_store = useCommonStore()
+		const sales_store = useSalesStore()
+		const deals_store = useDealsStore()
 
 		const { hasRole } = useUser()
 
-		const can_see_sales = computed(() => hasRole(1) || hasRole(4) || hasRole(7))
+		const can_see_sales = computed(() => !!hasRole(1) || !!hasRole(4) || !!hasRole(7))
 
 		const selected_table = computed(() => common_store.selected_table)
+
+		const is_from_sales = computed(() => !!common_store.meta.from_sales)
 
 		const toggleTable = (table_name) => {
 			common_store.setSelectedTable(table_name)
 		}
 
-		const thumb_style = {
-			width: "5px",
+		const backToSales = () => {
+			sales_store.setFilterField({
+				field: "id",
+				value: common_store.meta.from_sales.id
+			})
+
+			common_store.removeMetaField("from_sales")
+
+			deals_store.setFilter({})
+
+			toggleTable("sales")
 		}
 
 		return {
-			menu,
 			selected_table,
 			toggleTable,
+			backToSales,
 			can_see_sales,
-			thumb_style,
+			is_from_sales,
+			common_store
 		}
 	}
 }

@@ -62,7 +62,6 @@ import FreeCapCell from "src/components/deals/cells/FreeCapCell.vue"
 import SplitCell from "src/components/deals/cells/SplitCell.vue"
 import ManagerCell from "src/components/deals/cells/ManagerCell.vue"
 import { useDealsStore } from "src/stores/deals"
-import { Dialog } from "quasar"
 import AddDealDialog from "src/components/dialogs/addDealDialog.vue"
 export default {
 	components: {

@@ -224,6 +224,17 @@ export default {
 				split: response.data.items
 			})
 
+			common_store.setMetaField({
+				field: "from_sales",
+				value: {
+					id: row.id,
+					broker: {
+						id: row.provider.id,
+						name: row.provider.name
+					}
+				}
+			})
+
 			common_store.setSelectedTable("deals")
 
 			Loading.hide()

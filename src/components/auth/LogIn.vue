@@ -51,11 +51,11 @@ export default {
 
 					common_store.setSelectedTable("sales")
 
-					if (hasRole(4)) {
+					if (!!hasRole(4)) {
 						common_store.setSelectedTable("sales")
 					}
 
-					if (hasRole(5)) {
+					if (!!hasRole(5)) {
 						common_store.setSelectedTable("deals")
 					}
 
