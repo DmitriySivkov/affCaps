@@ -145,6 +145,8 @@ import { useQuasar, Loading } from "quasar"
 import SalesTableFilter from "src/components/sales/filters/SalesTableFilter.vue"
 import _ from "lodash"
 import { useSalesStore } from "src/stores/sales"
+import { useNotification } from "src/composables/notification"
+
 export default {
 	components: {
 		StandardCell,
@@ -161,6 +163,7 @@ export default {
 		const deals_store = useDealsStore()
 		const sales_store = useSalesStore()
 		const common_store = useCommonStore()
+		const { notifySuccess } = useNotification()
 		const table = ref(null)
 
 		const caps = ref([])
@@ -308,21 +311,13 @@ export default {
 			: 0
 		)
 
-		const capsChanged = async ({ row, value }) => {
-			Loading.show()
+		const capsChanged = async ({ old_cap, new_cap }) => {
+			const cap = caps.value.find((c) => c.id === old_cap.id)
 
-			const response = await api.post("/affiliateCaps/process", {
-				field: "caps",
-				row,
-				value
-			})
+			cap.id = new_cap.id
+			cap.amount = new_cap.amount
 
-			const cap = caps.value.find((c) => c.id === row.id)
-
-			cap.id = response.data.id
-			cap.amount = response.data.amount
-
-			Loading.hide()
+			notifySuccess("New cap amount is set successfully")
 		}
 
 		return {
