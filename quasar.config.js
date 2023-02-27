@@ -31,6 +31,7 @@ module.exports = configure(function (ctx) {
 		boot: [
 			"authWithToken", // first on boot - show loader
 			"axios",
+			"ws",
 			"countries",
 			"regions" // last on boot - hide loader
 		],
@@ -71,7 +72,8 @@ module.exports = configure(function (ctx) {
 			// publicPath: '/',
 			// analyze: true,
 			env: {
-				BACKEND_SERVER: ctx.dev ? "http://localhost:8080" : "https://0bb8-109-161-32-198.ngrok.io"
+				BACKEND_SERVER: ctx.dev ? "http://localhost:8080" : "https://0bb8-109-161-32-198.ngrok.io",
+				BACKEND_HOST: ctx.dev ? "localhost" : "https://0bb8-109-161-32-198.ngrok.io"
 			},
 			// rawDefine: {}
 			// ignorePublicFolder: true,
