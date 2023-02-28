@@ -166,7 +166,8 @@ export default {
 		const { notifySuccess } = useNotification()
 		const table = ref(null)
 
-		const caps = ref([])
+		const caps = computed(() => sales_store.data)
+
 		const columns = [
 			{ name: "id", label: "#ID", align: "left", field: "id", sortable: true, sort_type: "numeric" },
 			{ name: "region", label: "Region", align: "left", sortable: true, sort_type: "string" },
@@ -195,7 +196,7 @@ export default {
 					}
 				})
 				if (response.data.length > 0) {
-					caps.value = [...caps.value, ...response.data]
+					sales_store.commitSales(response.data)
 					offset += 80
 					await fetchData()
 				}
@@ -204,9 +205,12 @@ export default {
 			await fetchData()
 
 			loading.value = false
+			sales_store.commitIsInitialized(true)
 		}
 
-		loadData()
+		if (!sales_store.is_initialized) {
+			loadData()
+		}
 
 		const showDeals = async (row) => {
 			Loading.show()
@@ -312,10 +316,13 @@ export default {
 		)
 
 		const capsChanged = async ({ old_cap, new_cap }) => {
-			const cap = caps.value.find((c) => c.id === old_cap.id)
-
-			cap.id = new_cap.id
-			cap.amount = new_cap.amount
+			sales_store.commitSalesField({
+				id: old_cap.id,
+				fields: {
+					id: new_cap.id,
+					amount: new_cap.amount
+				}
+			})
 
 			notifySuccess("New cap amount is set successfully")
 		}

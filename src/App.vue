@@ -6,26 +6,26 @@
 import { watch } from "vue"
 import { echo } from "src/boot/ws"
 import { useUserStore } from "src/stores/user"
-import { usePrivateChannels } from "src/composables/privateChannels"
+import { usePublicChannels } from "src/composables/publicChannels"
 export default {
 	setup() {
 		const user_store = useUserStore()
-		const private_channels = usePrivateChannels()
+		const public_channels = usePublicChannels()
 
-		const connectPrivateChannels = () => {
+		const connectPublicChannels = () => {
 			if (!window.Pusher.isConnected)
 				echo.connect()
 
 			if (user_store.data.id) {
-				private_channels.connectDeals()
+				public_channels.connectDeals()
 			}
 		}
 
-		connectPrivateChannels()
+		connectPublicChannels()
 
 		watch(() => user_store.data.id, (userId) => {
 			if (userId) {
-				connectPrivateChannels()
+				connectPublicChannels()
 			} else {
 				echo.disconnect()
 			}

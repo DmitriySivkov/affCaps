@@ -86,7 +86,8 @@ export default {
 		const deals_store = useDealsStore()
 		const { notifySuccess } = useNotification()
 
-		const deals = ref([])
+		const deals = computed(() => deals_store.data)
+
 		const columns = [
 			{ name: "id", label: "#ID", align: "left", field: "id", sortable: true, sort_type: "numeric" },
 			{ name: "region", label: "Region", field: "region", align: "left", sortable: true, sort_type: "string" },
@@ -131,8 +132,7 @@ export default {
 				})
 
 				if (response.data.length > 0) {
-					deals.value = [...deals.value, ...response.data]
-
+					deals_store.commitDeals(response.data)
 					offset += 80
 					await fetchDeals()
 				}
@@ -142,9 +142,12 @@ export default {
 			await fetchDeals()
 
 			loading.value = false
+			deals_store.commitIsInitialized(true)
 		}
 
-		loadData()
+		if (!deals_store.is_initialized) {
+			loadData()
+		}
 
 		const getCell = (col) => {
 			switch (col) {
@@ -228,37 +231,36 @@ export default {
 		}
 
 		const addNewDeal = async(new_deal) => {
-			deals.value.unshift({
-				affiliate_id: new_deal.affiliate.id,
-				affiliate_info: "#" + new_deal.affiliate.id + ": " + new_deal.affiliate.fullname + " (" + new_deal.affiliate.email + ")",
-				amount: new_deal.amount,
-				comment: new_deal.comment,
-				country_id: new_deal.country.id,
-				country_iso: new_deal.country.iso,
-				country_name: new_deal.country.en_name,
-				created_at: new_deal.created_at,
-				deduction: new_deal.deduction,
-				experience: new_deal.experience,
-				funnel: new_deal.funnel,
-				id: new_deal.id,
-				manager_id: null,
-				percent: new_deal.percent,
-				region: new_deal.region.name,
-				source: new_deal.source,
-				split: null,
-				split_id: null,
-				status_sale: new_deal.status_sale,
-				total_country_cap: deals.value.find((d) => d.country_id === new_deal.country.id).total_country_cap,
-				total_country_reserved: new_deal.total_country_reserved,
-				updated_at: new_deal.updated_at
-			})
-
-			deals.value = deals.value.map((d) => {
-				if (d.country_id === new_deal.country.id) {
-					d.total_country_reserved = new_deal.total_country_reserved
+			deals_store.commitDeals([
+				{
+					affiliate_id: new_deal.affiliate.id,
+					affiliate_info: "#" + new_deal.affiliate.id + ": " + new_deal.affiliate.fullname + " (" + new_deal.affiliate.email + ")",
+					amount: new_deal.amount,
+					comment: new_deal.comment,
+					country_id: new_deal.country.id,
+					country_iso: new_deal.country.iso,
+					country_name: new_deal.country.en_name,
+					created_at: new_deal.created_at,
+					deduction: new_deal.deduction,
+					experience: new_deal.experience,
+					funnel: new_deal.funnel,
+					id: new_deal.id,
+					manager_id: null,
+					percent: new_deal.percent,
+					region: new_deal.region.name,
+					source: new_deal.source,
+					split: null,
+					split_id: null,
+					status_sale: new_deal.status_sale,
+					total_country_cap: deals.value.find((d) => d.country_id === new_deal.country.id).total_country_cap,
+					total_country_reserved: new_deal.total_country_reserved,
+					updated_at: new_deal.updated_at
 				}
-
-				return d
+			])
+			// recount
+			deals_store.commitRecountReservedCap({
+				country_id: new_deal.country.id,
+				total_reserved: new_deal.total_country_reserved
 			})
 
 			notifySuccess("Deal is added successfully")

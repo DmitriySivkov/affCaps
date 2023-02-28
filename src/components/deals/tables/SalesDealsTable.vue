@@ -78,7 +78,8 @@ export default {
 	setup() {
 		const deals_store = useDealsStore()
 
-		const deals = ref([])
+		const deals = computed(() => deals_store.data)
+
 		const columns = [
 			{ name: "id", label: "#ID", align: "left", field: "id", sortable: true, sort_type: "numeric" },
 			{ name: "region", label: "Region", field: "region", align: "left" },
@@ -124,11 +125,9 @@ export default {
 				})
 
 				if (response.data.length > 0) {
-					deals.value = [...deals.value, ...response.data]
+					deals_store.commitDeals(response.data)
 					offset += 80
 					await fetchData()
-				} else {
-					offset = 0
 				}
 			}
 
@@ -136,9 +135,12 @@ export default {
 			await fetchData()
 
 			loading.value = false
+			deals_store.commitIsInitialized(true)
 		}
 
-		loadData()
+		if (!deals_store.is_initialized) {
+			loadData()
+		}
 
 		const getCell = (col) => {
 			switch (col) {
