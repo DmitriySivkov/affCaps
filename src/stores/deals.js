@@ -3,6 +3,7 @@ import { defineStore } from "pinia"
 export const useDealsStore = defineStore("deals", {
 	state: () => ({
 		is_initialized: false,
+		available_countries: [],
 		filter: {},
 		data: [],
 	}),
@@ -42,6 +43,10 @@ export const useDealsStore = defineStore("deals", {
 
 				return d
 			})
+		},
+
+		commitAvailableCountries(countries) {
+			this.available_countries = [...countries, ...this.available_countries]
 		}
 	}
 })

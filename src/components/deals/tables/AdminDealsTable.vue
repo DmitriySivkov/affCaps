@@ -117,18 +117,16 @@ export default {
 			let offset = 0
 			loading.value = true
 
-			let available_countries = []
-
 			const getAvailableCountries = async() => {
 				const response = await api.get("/affiliateCaps/countries/available")
-				available_countries = response.data
+				deals_store.commitAvailableCountries(response.data)
 			}
 
 			const fetchData = async() => {
 				const response = await api.get("/affiliateCaps", {
 					params: {
 						offset,
-						availableCountries: JSON.stringify(available_countries),
+						availableCountries: JSON.stringify(deals_store.available_countries),
 						fetch: "deals"
 					}
 				})
@@ -229,46 +227,7 @@ export default {
 		const showNewDealDialog = () => {
 			Dialog.create({
 				component: AddDealDialog
-			}).onOk(async(new_deal) => {
-				await addNewDeal(new_deal)
 			})
-		}
-
-		const addNewDeal = async(new_deal) => {
-			deals_store.commitDeals([
-				{
-					affiliate_id: new_deal.affiliate.id,
-					affiliate_info: "#" + new_deal.affiliate.id + ": " + new_deal.affiliate.fullname + " (" + new_deal.affiliate.email + ")",
-					amount: new_deal.amount,
-					comment: new_deal.comment,
-					country_id: new_deal.country.id,
-					country_iso: new_deal.country.iso,
-					country_name: new_deal.country.en_name,
-					created_at: new_deal.created_at,
-					deduction: new_deal.deduction,
-					experience: new_deal.experience,
-					funnel: new_deal.funnel,
-					id: new_deal.id,
-					manager_id: null,
-					percent: new_deal.percent,
-					region: new_deal.region.name,
-					source: new_deal.source,
-					split: null,
-					split_id: null,
-					status_sale: new_deal.status_sale,
-					total_country_cap: deals.value.find((d) => d.country_id === new_deal.country.id).total_country_cap,
-					total_country_reserved: new_deal.total_country_reserved,
-					updated_at: new_deal.updated_at
-				}
-			])
-			// recount
-			deals_store.commitRecountReservedCap({
-				country_id: new_deal.country.id,
-				total_reserved: new_deal.total_country_reserved
-			})
-
-			notifySuccess("Deal is added successfully")
-
 		}
 
 		return {

@@ -91,7 +91,8 @@
 							lazy-rules
 							:rules="[
 								(val) => !!val || 'CAPs is required',
-								(val) => val !== 0 || 'CAPs can not be 0',
+								(val) => val > 0 || 'CAPs can not be below 0',
+								(val) => checkCountryCapExceeding(deal.country, val) || 'Exceeding free cap limit'
 							]"
 						/>
 					</q-card-section>
@@ -203,6 +204,7 @@
 import { ref } from "vue"
 import { useDialogPluginComponent} from "quasar"
 import { useCommonStore } from "src/stores/common"
+import { useDealsStore } from "src/stores/deals"
 import { api } from "src/boot/axios"
 export default {
 	props: {},
@@ -215,6 +217,7 @@ export default {
 		const { dialogRef, onDialogHide, onDialogOK, onDialogCancel } = useDialogPluginComponent()
 
 		const common_store = useCommonStore()
+		const deals_store = useDealsStore()
 
 		const deal = ref({
 			region: null,
@@ -283,10 +286,20 @@ export default {
 
 		}
 
+		const checkCountryCapExceeding = (country, val) => {
+			if (!!country) {
+
+				const deal = deals_store.data.find((d) => d.country_id === country.id)
+
+				return val <= parseInt(deal.total_country_cap) + parseInt(deal.total_country_reserved)
+			}
+			return true
+		}
+
 		const onSubmit = async() => {
 			is_saving.value = true
 
-			const response = await api.post("/affiliateCaps", {
+			await api.post("/affiliateCaps", {
 				region_id: deal.value.region.id,
 				country_id: deal.value.country.id,
 				affiliate_id: deal.value.affiliate.id,
@@ -301,7 +314,7 @@ export default {
 
 			is_saving.value = false
 
-			onDialogOK(response.data)
+			onDialogOK()
 		}
 
 		const onReset = () => {
@@ -323,7 +336,8 @@ export default {
 			affiliates,
 			onReset,
 			onSubmit,
-			is_saving
+			is_saving,
+			checkCountryCapExceeding
 		}
 	}
 }

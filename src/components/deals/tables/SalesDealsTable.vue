@@ -108,18 +108,16 @@ export default {
 			let offset = 0
 			loading.value = true
 
-			let available_countries = []
-
 			const getAvailableCountries = async() => {
 				const response = await api.get("/affiliateCaps/countries/available")
-				available_countries = response.data
+				deals_store.commitAvailableCountries(response.data)
 			}
 
 			const fetchData = async() => {
 				const response = await api.get("/affiliateCaps", {
 					params: {
 						offset,
-						availableCountries: JSON.stringify(available_countries),
+						availableCountries: JSON.stringify(deals_store.available_countries),
 						fetch: "deals"
 					}
 				})
